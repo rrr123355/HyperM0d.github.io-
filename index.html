@@ -1,129 +1,813 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Live Cricket HD</title>
-  <style>
-    /* -- অ্যানিমেশনের জন্য Keyframes -- */
-    @keyframes rgb-text-animation { 0% { color: #ff00de; } 15% { color: #00f7ff; } 30% { color: #ffea00; } 45% { color: #00ff62; } 60% { color: #ff6c00; } 75% { color: #0066ff; } 90% { color: #ff005d; } 100% { color: #ff00de; } }
-    @keyframes rgb-glow-animation { 0% { box-shadow: 0 0 10px #ff00de, 0 0 15px #ff00de; } 25% { box-shadow: 0 0 10px #00f7ff, 0 0 15px #00f7ff; } 50% { box-shadow: 0 0 10px #00ff62, 0 0 15px #00ff62; } 75% { box-shadow: 0 0 10px #ff6c00, 0 0 15px #ff6c00; } 100% { box-shadow: 0 0 10px #ff00de, 0 0 15px #ff00de; } }
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+    <title>Enchanted App Garden ♡</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Quicksand:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
     
-    body { font-family: Arial, sans-serif; text-align: center; padding: 20px; background-color: #000; color: white; margin: 0; transition: background-color 0.3s, color 0.3s; }
-    .rgb-text { font-weight: bold; animation: rgb-text-animation 4s linear infinite; }
-    h1.main-title { font-size: 2.8em; margin-top: 20px; margin-bottom: 20px; }
-    iframe { width: 100%; max-width: 800px; height: 450px; border: 4px solid #fff; border-radius: 10px; margin-bottom: 20px; animation: rgb-glow-animation 4s linear infinite; transition: border-color 0.3s; }
-    
-    .button-container { display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 10px; margin: 10px 0; }
-    button { padding: 10px 18px; font-size: 16px; cursor: pointer; border: 2px solid #555; border-radius: 8px; background-color: #1a1a1a; color: white; transition: all 0.2s ease-out; }
-    button.active { background-color: #28a745; border-color: #28a745; }
-    button:hover { background-color: #0056b3; border-color: #007bff; transform: translateY(-3px); }
-    button:active { transform: translateY(0) scale(0.95); }
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
-    :fullscreen h1.main-title, :fullscreen .logo-container, :fullscreen .settings-container, :fullscreen .button-container { display: none !important; }
-    :fullscreen #videoFrame { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; max-width: none; margin: 0; border: none; border-radius: 0; animation: none; z-index: 2147483647; }
-    :fullscreen body { padding: 0; }
+    <style>
+        :root {
+            --bg: #fff0f5; --surface: rgba(255, 255, 255, 0.9); --glass-border: rgba(255, 192, 203, 0.3); --primary: #de3163; --secondary: #c3aed6; --text-primary: #583759; --text-secondary: #8e7d8f; --font-display: 'Dancing Script', cursive; --font-body: 'Quicksand', sans-serif;
+            --grad-1: linear-gradient(135deg, #f8cdda, #fce4ec); --grad-2: linear-gradient(135deg, #e1bee7, #f3e5f5); --grad-3: linear-gradient(135deg, #c5cae9, #e8eaf6); --grad-4: linear-gradient(135deg, #bbdefb, #e3f2fd);
+            --star-color: #fbbc04;
+            --shadow-light: rgba(195, 174, 214, 0.15);
+            --shadow-medium: rgba(195, 174, 214, 0.25);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body { font-family: var(--font-body); background-color: var(--bg); color: var(--text-primary); line-height: 1.6; transition: background-color .5s, color .5s; }
+        body.dark-mode { --bg: #2c2c2c; --surface: rgba(40, 40, 40, 0.8); --glass-border: rgba(100, 100, 100, 0.5); --primary: #ff69b4; --secondary: #a38db6; --text-primary: #f1f1f1; --text-secondary: #c0c0c0; --grad-1: linear-gradient(135deg, #5c3b3e, #4a3034); --grad-2: linear-gradient(135deg, #54445c, #423447); --grad-3: linear-gradient(135deg, #464858, #353744); --grad-4: linear-gradient(135deg, #414f5c, #313c46); --shadow-light: rgba(0, 0, 0, 0.15); --shadow-medium: rgba(0, 0, 0, 0.25); }
+        
+        body.day-0 { --primary: #de3163; --bg: #fff0f5; --glass-border: rgba(222, 49, 99, 0.2); } body.day-0.dark-mode { --primary: #ff69b4; --bg: #2c2c2c; }
+        body.day-1 { --primary: #8e44ad; --bg: #f5eef8; --glass-border: rgba(142, 68, 173, 0.2); } body.day-1.dark-mode { --primary: #c39bd3; --bg: #2c2530; }
+        body.day-2 { --primary: #2980b9; --bg: #eaf2f8; --glass-border: rgba(41, 128, 185, 0.2); } body.day-2.dark-mode { --primary: #85c1e9; --bg: #22282c; }
+        body.day-3 { --primary: #27ae60; --bg: #e9f7ef; --glass-border: rgba(39, 174, 96, 0.2); } body.day-3.dark-mode { --primary: #7dcea0; --bg: #212c26; }
+        body.day-4 { --primary: #e67e22; --bg: #fdf3e6; --glass-border: rgba(230, 126, 34, 0.2); } body.day-4.dark-mode { --primary: #f0b27a; --bg: #2f2821; }
+        body.day-5 { --primary: #16a085; --bg: #e8f6f3; --glass-border: rgba(22, 160, 133, 0.2); } body.day-5.dark-mode { --primary: #76d7c4; --bg: #202b29; }
+        body.day-6 { --primary: #c0392b; --bg: #f9ebea; --glass-border: rgba(192, 57, 43, 0.2); } body.day-6.dark-mode { --primary: #ec7063; --bg: #2e2322; }
 
-    /* -- প্রধান লোগোর জন্য স্টাইল -- */
-    .logo-container { position: absolute; top: 20px; left: 25px; z-index: 999; }
-    .logo-container a { display: inline-block; text-decoration: none; } /* লিঙ্কটিকে ব্লক এলিমেন্ট করা হয়েছে */
-    .header-logo { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid #fff; animation: rgb-glow-animation 4s linear infinite; transition: transform 0.2s ease-in-out; }
-    .header-logo:hover { transform: scale(1.1); }
-    .logo-container a:active .header-logo { transform: scale(0.95); transition-duration: 0.1s; } /* নতুন ক্লিক অ্যানিমেশন */
+        body.no-scroll { overflow: hidden; }
+        .hidden { display: none !important; }
 
-    .settings-container { position: absolute; top: 20px; right: 25px; z-index: 1000; }
-    #settings-btn { background: none; border: none; padding: 5px; cursor: pointer; }
-    #settings-btn svg { width: 30px; height: 30px; fill: #fff; transition: transform 0.2s ease-in-out; }
-    #settings-btn:hover svg { transform: scale(1.2); }
-    
-    #settings-menu { display: none; position: absolute; top: 50px; right: 0; background: #1a1a1a; border-radius: 8px; border: 2px solid #444; padding: 10px; width: 220px; list-style: none; margin: 0; z-index: 1001; text-align: left; }
-    #settings-menu.show { display: block; }
-    .menu-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; cursor: pointer; border-radius: 5px; transition: background-color 0.2s; }
-    .menu-item:hover { background-color: #333; }
+        /* --- PERFORMANCE-OPTIMIZED ANIMATION --- */
+        @keyframes float-up {
+            0% { transform: translateY(0); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-110vh); opacity: 0; }
+        }
+        .heart {
+            position: fixed;
+            bottom: -100px; /* Initial anchor point off-screen */
+            animation: float-up 10s linear;
+            will-change: transform, opacity; /* Critical for performance */
+            pointer-events: none;
+            z-index: -1;
+        }
+        .heart.paused { display: none; }
+        .heart svg { width: var(--size); height: var(--size); fill: var(--color); opacity: 0.6; }
+        
+        @keyframes fade-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .page, .page-content { animation: fade-in .4s ease-out; }
 
-    /* -- Light Mode Styles -- */
-    body.light-mode { background-color: #f0f3f5; color: #111; }
-    body.light-mode iframe, body.light-mode #custom-dialog-box, body.light-mode .header-logo { border-color: #ccc; animation: none; }
-    body.light-mode #settings-btn svg { fill: #111; }
-    body.light-mode #settings-menu { background: #fff; border-color: #ddd; color: #111; }
-    body.light-mode .menu-item:hover { background-color: #e9e9e9; }
-    body.light-mode button { background-color: #fff; color: #111; border-color: #ccc; }
-    body.light-mode button.active { background-color: #28a745; border-color: #28a745; color: #fff; }
-    body.light-mode button:hover { background-color: #007bff; color: #fff; }
-    body.light-mode .dialog-buttons button.secondary { background-color: #ccc; }
-    body.light-mode #custom-dialog-box { background: #fff; }
+        .ripple { position: relative; overflow: hidden; -webkit-tap-highlight-color: transparent; }
+        .ripple-effect { position: absolute; border-radius: 50%; background-color: rgba(255, 255, 255, 0.4); transform: scale(0); animation: ripple-animation 0.6s linear; }
+        @keyframes ripple-animation { to { transform: scale(4); opacity: 0; } }
 
-    #custom-dialog-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); display: flex; justify-content: center; align-items: center; z-index: 2000; }
-    #custom-dialog-box { background: #111; padding: 25px; border-radius: 15px; text-align: center; border: 2px solid #fff; animation: rgb-glow-animation 4s linear infinite; transition: background-color 0.3s; }
-    .dialog-logo { width: 100px; height: 100px; border-radius: 50%; margin-bottom: 15px; object-fit: cover; animation: rgb-glow-animation 4s linear infinite; }
-  </style>
+        .header { background: var(--surface); padding: 12px 15px; box-shadow: 0 1px 4px rgba(0,0,0,0.05); display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+        .header-left { display: flex; align-items: center; gap: 12px; }
+        .header-logo-container { cursor: pointer; display: inline-block; position: relative; border-radius: 50%; padding: 3px; overflow: hidden; }
+        @keyframes rgb-border-flow { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+        .header-logo-container::before { content: ''; position: absolute; inset: 0; z-index: -1; border-radius: 50%; background: linear-gradient(90deg, #ff69b4, #ffa500, #00ffff, #9370db, #ff69b4); background-size: 400% 400%; animation: rgb-border-flow 6s linear infinite; }
+        .header-logo-container img { height: 40px; width: 40px; border-radius: 50%; display: block; }
+        .welcome-title { font-family: var(--font-display); font-size: 2.2rem; color: var(--primary); }
+        .search-btn { background: none; border: none; cursor: pointer; color: var(--text-primary); font-size: 28px; padding: 5px; }
+
+        .menu-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.4); z-index: 1999; opacity: 0; visibility: hidden; transition: opacity 0.3s ease; }
+        .menu-overlay.active { opacity: 1; visibility: visible; }
+        .side-menu { position: fixed; top: 0; left: 0; height: 100%; width: 90%; max-width: 300px; background: var(--bg); z-index: 2000; transform: translateX(-100%); transition: transform 0.3s ease-in-out; display: flex; flex-direction: column; padding: 20px; box-shadow: 5px 0 25px rgba(0,0,0,0.1); }
+        .side-menu.active { transform: translateX(0); }
+        .side-menu-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 30px; }
+        .side-menu-brand { font-family: var(--font-display); font-size: 2rem; color: var(--primary); }
+        .close-menu-btn { background: var(--surface); border: none; cursor: pointer; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--text-primary); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .side-menu-nav { display: grid; grid-template-columns: 1fr; gap: 10px; }
+        .side-menu-nav-item { background: var(--surface); padding: 15px; border-radius: 16px; text-decoration: none; color: var(--text-primary); transition: background-color 0.2s, color 0.2s, transform 0.2s; cursor: pointer; display: flex; align-items: center; gap: 15px; font-weight: 600; border: 1px solid var(--glass-border); }
+        .side-menu-nav-item:hover, .side-menu-nav-item.active { background-color: var(--primary); color: white; transform: translateX(5px); }
+        .side-menu-nav-item:hover .material-icons-round, .side-menu-nav-item.active .material-icons-round { color: white; }
+        .side-menu-nav-item .material-icons-round { color: var(--primary); transition: color 0.2s ease; }
+
+        .search-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg); z-index: 2000; display: flex; flex-direction: column; padding: 15px; transform: translateY(-100%); transition: transform 0.4s ease-in-out; visibility: hidden; }
+        .search-overlay.active { transform: translateY(0); visibility: visible; }
+        .search-overlay-header { display: flex; align-items: center; margin-bottom: 20px; padding: 12px 20px; border-radius: 25px; border: 1px solid var(--glass-border); background: var(--surface); }
+        .close-search-btn { background: none; border: none; cursor: pointer; color: var(--primary); font-size: 16px; font-weight: 700; text-transform: uppercase; margin-left: 15px; }
+        #searchResultsContainer { flex-grow: 1; overflow-y: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 16px; padding: 10px; }
+        .search-field { position: relative; flex-grow: 1; } #mainSearchInput { width: 100%; border: none; background: none; outline: none; font-size: 16px; font-family: var(--font-body); color: var(--text-primary); padding: 8px 0; }
+        .search-label { position: absolute; left: 0; top: 8px; color: var(--text-secondary); font-size: 16px; pointer-events: none; transition: all 0.2s ease; transform-origin: left top; }
+        #mainSearchInput:focus + .search-label, #mainSearchInput:not(:placeholder-shown) + .search-label { transform: translateY(-16px) scale(0.75); color: var(--primary); }
+
+        .app-root { min-height: 100vh; padding-bottom: 90px; }
+        .section-title { padding: 16px; font-size: 1.8rem; font-family: var(--font-display); color: var(--primary); }
+        
+        .popular-carousel { display: flex; gap: 20px; overflow-x: auto; padding: 10px 16px; margin: 0 0 20px 0; scroll-snap-type: x mandatory; }
+        .popular-carousel::-webkit-scrollbar { display: none; }
+        .popular-card-item { flex: 0 0 280px; position: relative; cursor: pointer; display: flex; flex-direction: column; align-items: center; scroll-snap-align: start; }
+        .popular-card-base { width: 100%; height: 200px; border-radius: 20px; overflow: hidden; position: relative; background: var(--surface); box-shadow: 0 10px 25px var(--shadow-medium); transition: transform 0.3s ease, box-shadow 0.3s ease; border: 1px solid var(--glass-border); }
+        .popular-card-item:hover .popular-card-base { transform: translateY(-8px); box-shadow: 0 15px 35px var(--shadow-medium); }
+        .popular-app-logo-wrapper { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 100px; height: 100px; border-radius: 25px; overflow: hidden; box-shadow: 0 8px 25px rgba(0,0,0,0.2); z-index: 10; background-color: var(--surface); border: 3px solid var(--surface); }
+        .popular-app-logo { width: 100%; height: 100%; object-fit: contain; }
+        .popular-card-app-name { font-size: 16px; font-weight: 600; color: var(--text-primary); margin-top: 15px; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; padding: 0 10px; }
+
+        .app-grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); padding: 0 16px; }
+        .app-card { width: 100%; flex-shrink: 0; cursor: pointer; text-align: center; background: var(--surface); padding: 16px 8px; border-radius: 35px; border: 1px solid var(--glass-border); transition: transform 0.3s ease, box-shadow 0.3s ease; box-shadow: 0 10px 25px var(--shadow-light); position: relative; will-change: transform; }
+        .app-card:hover { transform: translateY(-8px); box-shadow: 0 15px 35px var(--shadow-medium); }
+        .app-card-icon { width: 80px; height: 80px; border-radius: 25px; object-fit: cover; margin-bottom: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); pointer-events: none; }
+        .app-name { font-weight: 700; color: var(--text-primary); padding: 0 5px; pointer-events: none; }
+        .app-meta { font-size: 13px; color: var(--text-secondary); pointer-events: none; margin-top: 2px; }
+        
+        #paginationContainer { display: flex; justify-content: center; align-items: center; padding: 25px 15px; gap: 8px; }
+        .page-link { cursor: pointer; color: var(--text-secondary); border: 1px solid var(--glass-border); background-color: var(--surface); padding: 8px 14px; border-radius: 12px; font-weight: 600; transition: background-color 0.2s, color 0.2s, border-color 0.2s; }
+        .page-link:hover, .page-link.active { background-color: var(--primary); color: white; border-color: var(--primary); }
+        
+        .rgb-creator-name { font-weight: bold; font-size: 1.6rem; letter-spacing: 2px; background: linear-gradient(90deg, #ff69b4, #ffa500, var(--secondary), #9370db, #ff69b4); background-size: 500% 500%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: rgbGlow 6s ease-in-out infinite; }
+        @keyframes rgbGlow { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+        
+        .detail-header { display: flex; align-items: center; margin-bottom: 25px; gap: 15px; }
+        .btn-back { background: none; border: none; color: var(--text-primary); font-size: 28px; cursor: pointer; padding: 5px; }
+        .detail-title { font-size: 22px; font-weight: 600; color: var(--text-primary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .detail-card { background: var(--surface); padding: 20px; border-radius: 20px; display: flex; gap: 20px; align-items: center; margin-bottom: 25px; box-shadow: 0 8px 30px var(--shadow-medium); }
+        #detailAppImage { width: 80px; height: 80px; border-radius: 20px; object-fit: cover; flex-shrink: 0; }
+        .detail-info { flex-grow: 1; }
+        #detailAppName { font-size: 20px; font-weight: 600; color: var(--text-primary); }
+        #detailAppCategory { font-size: 14px; color: var(--text-secondary); margin: 2px 0 6px 0; }
+        #detailStarRating { font-size: 14px; color: var(--text-secondary); display: flex; align-items: center; gap: 5px; }
+        #detailStarRating .stars { color: var(--star-color); font-size: 18px; }
+        .detail-actions { display: grid; grid-template-columns: 1fr; gap: 12px; margin-top: 15px; }
+        .btn { padding: 12px; border-radius: 12px; font-weight: 700; cursor: pointer; border: none; transition: background-color 0.2s, transform 0.2s; font-size: 16px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; }
+        .btn-full-width { grid-column: 1 / -1; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background-color: color-mix(in srgb, var(--primary) 85%, black); transform: translateY(-2px); }
+        .btn-secondary { background: var(--glass-border); color: var(--text-primary); }
+        .btn-secondary:hover { background: color-mix(in srgb, var(--primary) 20%, transparent); transform: translateY(-2px); }
+        .detail-section-content { margin-bottom: 25px; }
+        .detail-section-content .subtitle { color: var(--primary); margin-bottom: 15px; font-size: 1.8rem; font-weight: 600; font-family: var(--font-display); }
+        #detailAppDescContainer ul { list-style: none; padding-left: 0; }
+        #detailAppDescContainer li { display: flex; align-items: flex-start; margin-bottom: 12px; font-size: 15px; }
+        #detailAppDescContainer li .material-icons-round { margin-right: 12px; font-size: 22px; color: var(--primary); }
+        .screenshot-gallery { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 15px; scrollbar-width: none; -ms-overflow-style: none; }
+        .screenshot-gallery::-webkit-scrollbar { display: none; }
+        .screenshot-img { height: 250px; width: auto; border-radius: 12px; object-fit: cover; border: 1px solid var(--glass-border); cursor:pointer; }
+        
+        .lightbox-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); z-index: 4000; display: flex; align-items: center; justify-content: center; opacity: 0; visibility: hidden; transition: opacity 0.3s ease; }
+        .lightbox-overlay.active { opacity: 1; visibility: visible; }
+        .lightbox-content { position: relative; max-width: 95vw; max-height: 90vh; }
+        .lightbox-image { max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 8px; }
+        .lightbox-close { position: absolute; top: 10px; right: 10px; background: none; border: none; color: white; font-size: 40px; cursor: pointer; }
+
+        .review-form { background: var(--surface); padding: 20px; border-radius: 12px; margin-bottom: 24px; }
+        .review-form input[type="text"], .review-form textarea { width: 100%; padding: 12px 14px; border-radius: 8px; border: 1px solid var(--glass-border); background: var(--bg); color: var(--text-primary); margin-bottom: 12px; font-size: 15px; font-family: var(--font-body); outline: none; transition: border-color 0.2s ease, box-shadow 0.2s ease; }
+        .review-form input:focus, .review-form textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 20%, transparent); }
+        .star-rating { display: flex; justify-content: center; margin-bottom: 16px; direction: rtl; }
+        .star-rating input { display: none; }
+        .star-rating label { font-size: 32px; color: #ccc; cursor: pointer; transition: color 0.2s ease, transform 0.1s ease; padding: 0 2px; }
+        .star-rating input:checked~label, .star-rating label:hover, .star-rating label:hover~label { color: var(--star-color); transform: scale(1.2); }
+        .review-list .review-item { border-top: 1px solid var(--glass-border); padding: 16px 0; }
+        .review-item strong { color: var(--text-primary); font-weight: 600; font-size: 15px; }
+        .review-item .review-stars { color: var(--star-color); font-size: 16px; margin-bottom: 6px; }
+
+        .settings-header, .favorites-header { position: sticky; top: 0; z-index: 10; padding: 20px 24px 16px; background: color-mix(in srgb, var(--bg) 80%, transparent); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); }
+        .settings-main, .favorites-main { padding: 0 16px 24px; }
+        .settings-group { margin-bottom: 24px; }
+        .settings-group-title { font-family: var(--font-display); color: var(--primary); font-size: 1.6rem; padding-left: 8px; margin-bottom: 8px; }
+        .settings-card { background: var(--surface); border: 1px solid var(--glass-border); border-radius: 20px; overflow: hidden; box-shadow: 0 4px 16px var(--shadow-light); }
+        .settings-item { display: flex; align-items: center; padding: 12px 16px; cursor: pointer; }
+        .settings-item a { text-decoration: none; color: inherit; display: flex; align-items: center; flex-grow: 1; }
+        .settings-item:not(:last-child) { border-bottom: 1px solid var(--glass-border); }
+        .settings-item-icon { width: 36px; height: 36px; border-radius: 10px; display: flex; justify-content: center; align-items: center; margin-right: 16px; color: var(--primary); }
+        .settings-item-icon.grad-1 { background-image: var(--grad-1); } .settings-item-icon.grad-2 { background-image: var(--grad-2); } .settings-item-icon.grad-3 { background-image: var(--grad-3); } .settings-item-icon.grad-4 { background-image: var(--grad-4); }
+        .settings-item-label { flex-grow: 1; font-weight: 500; font-size: 16px; }
+        .settings-item-control { display: flex; align-items: center; gap: 8px; color: var(--text-secondary); font-weight: 500; }
+        .switch { position: relative; display: inline-block; width: 50px; height: 28px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0,0,0,0.1); transition: .4s; border-radius: 28px; }
+        .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: var(--primary); }
+        input:checked + .slider:before { transform: translateX(22px); }
+        
+        .bottom-nav { position: fixed; bottom: 16px; left: 16px; right: 16px; width: auto; background: var(--surface); display: flex; justify-content: space-around; padding: 8px; border-radius: 32px; border: 1px solid var(--glass-border); box-shadow: 0 8px 32px 0 var(--shadow-medium); z-index: 100; transition: transform 0.3s ease-in-out; }
+        .bottom-nav.hidden { transform: translateY(150%); }
+        .nav-item { padding: 8px 20px; border-radius: 24px; color: var(--text-secondary); cursor: pointer; transition: background-color .3s, color .3s; }
+        .nav-item.active { background: var(--primary); color: white; }
+        .nav-item.active .material-icons-round { color: white; }
+        
+        #languageModal { position: fixed; z-index: 3000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.4); display:flex; justify-content: center; align-items: center; animation: fade-in 0.3s; }
+        .modal-content { background: var(--bg); border: 1px solid var(--glass-border); width: 90%; max-width: 400px; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); }
+        .modal-header { padding: 16px 20px; border-bottom: 1px solid var(--glass-border); display: flex; justify-content: space-between; align-items: center; }
+        .modal-title { font-family: var(--font-display); font-size: 1.8rem; color: var(--primary); }
+        .modal-close { cursor: pointer; font-size: 28px; color: var(--text-secondary); }
+        .modal-body { padding: 8px; max-height: 60vh; overflow-y: auto; }
+        .lang-option { padding: 14px 20px; font-weight: 500; cursor: pointer; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; }
+        .lang-option:hover { background-color: rgba(255,192,203,0.1); }
+        .lang-option.active { color: var(--primary); font-weight: 700; }
+        
+        html[dir="rtl"] .header-left { flex-direction: row-reverse; }
+        html[dir="rtl"] .side-menu { right: 0; left: auto; transform: translateX(100%); }
+        html[dir="rtl"] .side-menu.active { transform: translateX(0); }
+        html[dir="rtl"] .side-menu-nav-item:hover, html[dir="rtl"] .side-menu-nav-item.active { transform: translateX(-5px); }
+        html[dir="rtl"] .settings-item-icon { margin-left: 16px; margin-right: 0; }
+        html[dir="rtl"] .settings-item-control .material-icons-round { transform: scaleX(-1); }
+        html[dir="rtl"] .star-rating { direction: ltr; }
+        html[dir="rtl"] #detailAppDescContainer li .material-icons-round { margin-left: 12px; margin-right: 0; }
+    </style>
 </head>
 <body>
-  
-  <div id="custom-dialog-overlay">
-    <div id="custom-dialog-box">
-      <img src="https://i.ibb.co/MyjL8DZk/IMG-20250502-151238-214.jpg" alt="Channel Logo" class="dialog-logo">
-      <h2 class="rgb-text">Join Our Community!</h2>
-      <p>For the best quality live streaming and updates,</p>
-      <p>please join our Telegram channel.</p>
-      <div class="dialog-buttons">
-        <button onclick="joinTelegram()">✅ Join Now</button>
-        <button class="secondary" onclick="closeDialog()">❌ Later</button>
-      </div>
+
+<div id="hearts-container"></div>
+
+<div class="menu-overlay"></div>
+<div class="side-menu">
+    <div class="side-menu-header">
+        <h2 class="side-menu-brand"></h2>
+        <button class="close-menu-btn ripple"><span class="material-icons-round">close</span></button>
     </div>
-  </div>
+    <nav id="sideMenuNav" class="side-menu-nav"></nav>
+</div>
 
-  <!-- প্রধান লোগো এখন একটি লিঙ্ক -->
-  <div class="logo-container">
-    <a href="https://t.me/+Qwj4jtZdSTAzYjY9" target="_blank" rel="noopener noreferrer" title="Join Our Other Channel">
-      <img src="https://i.ibb.co/MyjL8DZk/IMG-20250502-151238-214.jpg" alt="Logo" class="header-logo">
-    </a>
-  </div>
-  
-  <div class="settings-container">
-    <button id="settings-btn" onclick="toggleSettingsMenu()">
-      <svg xmlns="http://www.w3.org/2000/svg" height="30px" viewBox="0 0 24 24" width="30px" fill="#FFFFFF"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
-    </button>
-    <ul id="settings-menu">
-      <li class="menu-item" onclick="alert('Playback speed cannot be changed for a live stream.')"><span class="rgb-text">Playback Speed</span><span>Normal ></span></li>
-      <li class="menu-item" onclick="toggleTheme()"><span class="rgb-text">Theme</span><span id="theme-status">Dark</span></li>
-      <li class="menu-item" onclick="alert('Checking for updates... You are on the latest version!')"><span class="rgb-text">Check for Updates</span><span>v2.2</span></li>
-      <li class="menu-item" onclick="alert('For support, please join our Telegram channel.')"><span class="rgb-text">Support</span><span>></span></li>
-    </ul>
-  </div>
-  
-  <h1 class="main-title rgb-text">Live Cricket</h1>
-  <iframe id="videoFrame" src="https://tataplay.slivcdn.com/hls/live/2020591/TEN3HD/master_3500.m3u8" allowfullscreen></iframe>
-  
-  <div class="button-container">
-    <button id="btnHindi" class="active rgb-text" onclick="setLanguage('hindi')">Hindi</button>
-    <button id="btnEnglish" class="rgb-text" onclick="setLanguage('english')">English</button>
-    <span style="border-left: 2px solid #444; height: 30px;"></span>
-    <button id="btn1080p" class="active rgb-text" onclick="setQuality('1080p')">1080p</button>
-    <button id="btn720p" class="rgb-text" onclick="setQuality('720p')">720p</button>
-    <button id="btn360p" class="rgb-text" onclick="setQuality('360p')">360p</button>
-    <button id="btn240p" class="rgb-text" onclick="setQuality('240p')">240p</button>
-    <span style="border-left: 2px solid #444; height: 30px;"></span>
-    <button class="fullscreen-btn rgb-text" onclick="goFullScreen()">⛶ Fullscreen</button>
-  </div>
+<div id="searchOverlay" class="search-overlay">
+    <div class="search-overlay-header">
+        <div class="search-field"><input type="text" id="mainSearchInput" placeholder=" " autocomplete="off"><label for="mainSearchInput" class="search-label"></label></div>
+        <button class="close-search-btn ripple"></button>
+    </div>
+    <div id="searchResultsContainer"></div>
+</div>
 
-  <script>
-    function closeDialog() { document.getElementById('custom-dialog-overlay').style.display = 'none'; }
-    function joinTelegram() { window.location.href = "https://t.me/PREMIUM_V1"; closeDialog(); }
-    function toggleSettingsMenu() { document.getElementById('settings-menu').classList.toggle('show'); }
-    function toggleTheme() { document.body.classList.toggle('light-mode'); const e = document.getElementById("theme-status"); e.textContent = document.body.classList.contains("light-mode") ? "Light" : "Dark"; }
-    async function goFullScreen() { try { document.fullscreenElement ? await document.exitFullscreen() : (await document.documentElement.requestFullscreen(), await screen.orientation.lock("landscape")); } catch (e) { console.error(`Fullscreen বা Rotation সম্ভব হয়নি: ${e.message}`); } }
-    
-    let currentLanguage = "hindi", currentQuality = "1080p";
-    const sources = {
-        hindi: { "1080p": "https://tataplay.slivcdn.com/hls/live/2020591/TEN3HD/master_3500.m3u8", "720p": "https://tataplay.slivcdn.com/hls/live/2020591/TEN3HD/master_1300.m3u8", "360p": "https://tataplay.slivcdn.com/hls/live/2020591/TEN3HD/master_664.m3u8", "240p": "https://tataplay.slivcdn.com/hls/live/2020591/TEN3HD/master_224.m3u8" },
-        english: { "1080p": "https://tataplay.slivcdn.com/hls/live/2011747/TEN1HD/master_3500.m3u8", "720p": "https://tataplay.slivcdn.com/hls/live/2011747/TEN1HD/master_1300.m3u8", "360p": "https://tataplay.slivcdn.com/hls/live/2011747/TEN1HD/master_664.m3u8", "240p": "https://tataplay.slivcdn.com/hls/live/2011747/TEN1HD/master_224.m3u8" }
+<div id="lightboxOverlay" class="lightbox-overlay">
+    <div class="lightbox-content">
+        <img id="lightboxImage" class="lightbox-image" src="">
+        <button id="lightboxClose" class="lightbox-close material-icons-round">close</button>
+    </div>
+</div>
+
+<div id="languageModal" class="hidden">
+    <div class="modal-content">
+        <div class="modal-header"><h2 class="modal-title"></h2><span class="material-icons-round modal-close ripple">&times;</span></div>
+        <div class="modal-body"></div>
+    </div>
+</div>
+
+<div class="header hidden">
+    <div class="header-left">
+        <div class="header-logo-container ripple">
+            <img src="https://i.ibb.co/tTNj64wq/Telegram-Logk.png" alt="logo">
+        </div>
+        <h1 class="welcome-title"></h1>
+    </div>
+    <button class="search-btn ripple"><span class="material-icons-round">search</span></button>
+</div>
+
+<div id="appRoot" class="app-root">
+    <div id="homePage" class="page">
+        <div id="popularCarouselContainer"></div>
+        <h2 id="pageTitle" class="section-title"></h2>
+        <div id="appGrid" class="app-grid"></div>
+        <div id="paginationContainer"></div>
+        <div style="margin-top: 30px; text-align: center;"><p class="rgb-creator-name">🌸 𝐀 𝐈 𝐒 𝐇 𝐀 🌸</p></div>
+    </div>
+    <div id="detailPage" class="page hidden"></div>
+    <div id="favoritesPage" class="page hidden"></div>
+    <div id="settingsPage" class="page hidden"></div>
+</div>
+
+<nav id="bottomNav" class="bottom-nav"></nav>
+
+<script>
+    // --- START: GLOBAL STATE & CONFIG ---
+    const state = { 
+        apps: [], 
+        favorites: JSON.parse(localStorage.getItem('favorites')) || [], 
+        activePage: 'home', 
+        activeLang: localStorage.getItem('language') || 'en',
+        currentItemId: null,
+        currentFilter: 'home',
+        currentPage: 1,
+        itemsPerPage: 12,
     };
 
-    function updateStream() { document.getElementById("videoFrame").src = sources[currentLanguage][currentQuality]; }
-    function setLanguage(lang) { currentLanguage = lang; document.getElementById("btnHindi").classList.toggle("active", "hindi" === lang); document.getElementById("btnEnglish").classList.toggle("active", "english" === lang); updateStream(); }
-    function setQuality(q) { currentQuality = q; ["1080p", "720p", "360p", "240p"].forEach(res => document.getElementById("btn" + res).classList.toggle("active", res === q)); updateStream(); }
-  </script>
+    // --- FIREBASE CONFIG (Updated to Premium Apps Free) ---
+    const firebaseConfig = {
+        apiKey: "AIzaSyDklPQcjXfwKIaOoBHQiJbAIq4PrqR2cxs",
+        authDomain: "premiumappsfree-ac666.firebaseapp.com",
+        databaseURL: "https://premiumappsfree-ac666-default-rtdb.firebaseio.com",
+        projectId: "premiumappsfree-ac666",
+        storageBucket: "premiumappsfree-ac666.appspot.com",
+        messagingSenderId: "406207439410",
+        appId: "1:406207439410:web:b98131982dd86d13de122b"
+    };
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+    
+    // --- START: LANGUAGE & TRANSLATION SYSTEM ---
+    const allLanguages = { en: "English", bn: "বাংলা", hi: "हिन्दी", id: "Bahasa Indonesia", ar: "العربية", fr: "Français", tr: "Türkçe", es: "Español", pt: "Português" };
+    const translations = {
+        en: { loading: "Loading a touch of magic...", homeTitle: "Hello, Beautiful!", searchPlaceholder: "Find something special...", defaultCategory: "✨ Must-Haves", download: "Download", settingsTitle: "Settings", langLabel: "Language", aboutLabel: "About App:", aboutDesc: "This application is developed for <strong>educational purposes only</strong>.", joinTelegram: "Join our Telegram", favoritesTitle: "Your Favorites", noFavorites: "You haven't added any favorites yet!", noFavoritesSub: "Tap the ♡ on any app to save it here.", aboutItem: "About this App", requestUpdate: "Request Update", screenshots: "Screenshots", rateThisApp: "Rate this App", yourName: "Your Name", writeReview: "Write a review...", postReview: "Post Review", noReviews: "No reviews yet. Be the first!", darkMode: "Dark Mode", refreshCache: "Refresh Cache", clearAllData: "Clear All Data", soundClicks: "Click Vibration", heartAnimation: "Floating Hearts", general: "General", data: "Data", latestApps: "Latest Apps", popularApps: "Popular Apps", category: "Category", favorite: "Favorite", cancel: "Cancel", categories: "Categories", appNotFound: "App not found.", noResults: "No results found.", howToDownload: "How to Download", viewOnPlayStore: "View on Play Store" },
+        bn: { loading: "একটু অপেক্ষা করুন...", homeTitle: "স্বাগতম!", searchPlaceholder: "কিছু খুঁজুন...", defaultCategory: "✨ প্রয়োজনীয়", download: "ডাউনলোড", settingsTitle: "সেটিংস", langLabel: "ভাষা", aboutLabel: "অ্যাপ সম্পর্কে:", aboutDesc: "এই অ্যাপ্লিকেশনটি শুধুমাত্র <strong>শিক্ষামূলক উদ্দেশ্যে</strong> তৈরি করা হয়েছে।", joinTelegram: "টেলিগ্রামে যোগ দিন", favoritesTitle: "আপনার পছন্দের তালিকা", noFavorites: "আপনি এখনো পছন্দের কিছু যোগ করেননি!", noFavoritesSub: "যেকোনো অ্যাপে ♡ ট্যাপ করে এখানে সেভ করুন।", aboutItem: "এই অ্যাপ সম্পর্কে", requestUpdate: "আপডেটের জন্য অনুরোধ", screenshots: "স্ক্রিনশট", rateThisApp: "অ্যাপটি রেট দিন", yourName: "আপনার নাম", writeReview: "রিভিউ লিখুন...", postReview: "রিভিউ পোস্ট করুন", noReviews: "এখনো কোনো রিভিউ নেই। প্রথম রিভিউটি আপনি দিন!", darkMode: "ডার্ক মোড", refreshCache: "ক্যাশে রিফ্রেশ করুন", clearAllData: "সমস্ত ডেটা মুছুন", soundClicks: "ক্লিক ভাইব্রেশন", heartAnimation: "ফ্লোটিং হার্ট", general: "সাধারণ", data: "ডেটা", latestApps: "সর্বশেষ অ্যাপস", popularApps: "জনপ্রিয় অ্যাপস", category: "ক্যাটাগরি", favorite: "পছন্দের", cancel: "বাতিল", categories: "ক্যাটাগরি সমূহ", appNotFound: "অ্যাপ খুঁজে পাওয়া যায়নি।", noResults: "কোনো ফলাফল পাওয়া যায়নি।", howToDownload: "কিভাবে ডাউনলোড করবেন", viewOnPlayStore: "প্লে স্টোরে দেখুন" },
+        hi: { loading: "एक जादुई स्पर्श लोड हो रहा है...", homeTitle: "नमस्ते, सुंदर!", searchPlaceholder: "कुछ खास ढूंढें...", defaultCategory: "✨ ज़रूरी ऐप्स", download: "डाउनलोड", settingsTitle: "सेटिंग्स", langLabel: "भाषा", aboutLabel: "ऐप के बारे में:", aboutDesc: "यह एप्लिकेशन केवल <strong>शैक्षिक उद्देश्यों</strong> के लिए विकसित किया गया है।", joinTelegram: "हमारे टेलीग्राम से जुड़ें", favoritesTitle: "आपके पसंदीदा", noFavorites: "आपने अभी तक कोई पसंदीदा नहीं जोड़ा है!", noFavoritesSub: "किसी भी ऐप पर ♡ टैप करके इसे यहाँ सेव करें।", aboutItem: "इस ऐप के बारे में", requestUpdate: "अपडेट का अनुरोध करें", screenshots: "स्क्रीनशॉट", rateThisApp: "इस ऐप को रेट करें", yourName: "आपका नाम", writeReview: "एक समीक्षा लिखें...", postReview: "समीक्षा पोस्ट करें", noReviews: "अभी तक कोई समीक्षा नहीं। पहले बनें!", darkMode: "डार्क मोड", refreshCache: "कैश रिफ्रेश करें", clearAllData: "सभी डेटा साफ़ करें", soundClicks: "क्लिक कंपन", heartAnimation: "Floating Hearts", general: "सामान्य", data: "डेटा", latestApps: "नवीनतम ऐप्स", popularApps: "लोकप्रिय ऐप्स", category: "श्रेणी", favorite: "पसंदीदा", cancel: "रद्द करें", categories: "श्रेणियाँ", appNotFound: "ऐप नहीं मिला।", noResults: "कोई परिणाम नहीं मिला।", howToDownload: "कैसे डाउनलोड करें", viewOnPlayStore: "प्ले स्टोर पर देखें" },
+        id: { loading: "Memuat sentuhan ajaib...", homeTitle: "Halo, Cantik!", searchPlaceholder: "Cari sesuatu yang istimewa...", defaultCategory: "✨ Harus Punya", download: "Unduh", settingsTitle: "Pengaturan", langLabel: "Bahasa", aboutLabel: "Tentang Aplikasi:", aboutDesc: "Aplikasi ini dikembangkan untuk <strong>tujuan pendidikan saja</strong>.", joinTelegram: "Gabung Telegram kami", favoritesTitle: "Favorit Anda", noFavorites: "Anda belum menambahkan favorit!", noFavoritesSub: "Ketuk ♡ di aplikasi apa pun untuk menyimpannya di sini.", aboutItem: "Tentang Aplikasi Ini", requestUpdate: "Minta Pembaruan", screenshots: "Tangkapan Layar", rateThisApp: "Beri Nilai Aplikasi Ini", yourName: "Nama Anda", writeReview: "Tulis ulasan...", postReview: "Kirim Ulasan", noReviews: "Belum ada ulasan. Jadilah yang pertama!", darkMode: "Mode Gelap", refreshCache: "Segarkan Cache", clearAllData: "Hapus Semua Data", soundClicks: "Getaran Klik", heartAnimation: "Floating Hearts", general: "Umum", data: "Data", latestApps: "Aplikasi Terbaru", popularApps: "Aplikasi Populer", category: "Kategori", favorite: "Favorit", cancel: "Batal", categories: "Kategori", appNotFound: "Aplikasi tidak ditemukan.", noResults: "Tidak ada hasil ditemukan.", howToDownload: "Cara Mengunduh", viewOnPlayStore: "Lihat di Play Store" },
+        ar: { loading: "جاري تحميل لمسة من السحر...", homeTitle: "أهلاً بكِ!", searchPlaceholder: "ابحث عن شيء مميز...", defaultCategory: "✨ تطبيقات أساسية", download: "تحميل", settingsTitle: "الإعدادات", langLabel: "اللغة", aboutLabel: "عن التطبيق:", aboutDesc: "تم تطوير هذا التطبيق <strong>لأغراض تعليمية فقط</strong>.", joinTelegram: "انضم إلى تيليجرام", favoritesTitle: "مفضلاتك", noFavorites: "لم تقم بإضافة أي مفضلات بعد!", noFavoritesSub: "اضغط على ♡ في أي تطبيق لحفظه هنا.", aboutItem: "عن هذا التطبيق", requestUpdate: "طلب تحديث", screenshots: "لقطات الشاشة", rateThisApp: "قيّم هذا التطبيق", yourName: "اسمك", writeReview: "اكتب مراجعة...", postReview: "نشر المراجعة", noReviews: "لا توجد مراجعات حتى الآن. كن الأول!", darkMode: "الوضع الداكن", refreshCache: "تحديث الذاكرة المؤقتة", clearAllData: "مسح كل البيانات", soundClicks: "اهتزاز النقر", heartAnimation: "Floating Hearts", general: "عام", data: "البيانات", latestApps: "أحدث التطبيقات", popularApps: "التطبيقات الشائعة", category: "فئة", favorite: "المفضلة", cancel: "إلغاء", categories: "الفئات", appNotFound: "التطبيق غير موجود.", noResults: "لم يتم العثور على نتائج.", howToDownload: "كيفية التنزيل", viewOnPlayStore: "عرض في متجر Play" },
+        fr: { loading: "Chargement d'une touche de magie...", homeTitle: "Bonjour, Beauté !", searchPlaceholder: "Trouvez quelque chose de spécial...", defaultCategory: "✨ Incontournables", download: "Télécharger", settingsTitle: "Paramètres", langLabel: "Langue", aboutLabel: "À propos de l'app:", aboutDesc: "Cette application est développée à des <strong>fins éducatives uniquement</strong>.", joinTelegram: "Rejoignez notre Telegram", favoritesTitle: "Vos Favoris", noFavorites: "Vous n'avez ajouté aucun favori !", noFavoritesSub: "Appuyez sur le ♡ de n'importe quelle app pour l'enregistrer ici.", aboutItem: "À propos de cette App", requestUpdate: "Demander une mise à jour", screenshots: "Captures d'écran", rateThisApp: "Évaluer cette application", yourName: "Votre Nom", writeReview: "Écrire un avis...", postReview: "Publier l'avis", noReviews: "Aucun avis pour le moment. Soyez le premier !", darkMode: "Mode Sombre", refreshCache: "Rafraîchir le Cache", clearAllData: "Effacer toutes les données", soundClicks: "Vibration au clic", heartAnimation: "Floating Hearts", general: "Général", data: "Données", latestApps: "Dernières Apps", popularApps: "Apps Populaires", category: "Catégorie", favorite: "Favori", cancel: "Annuler", categories: "Catégories", appNotFound: "Application non trouvée.", noResults: "Aucun résultat trouvé.", howToDownload: "Comment télécharger", viewOnPlayStore: "Voir sur le Play Store" },
+        tr: { loading: "Bir tutam sihir yükleniyor...", homeTitle: "Merhaba, Güzel!", searchPlaceholder: "Özel bir şeyler bul...", defaultCategory: "✨ Olmazsa Olmazlar", download: "İndir", settingsTitle: "Ayarlar", langLabel: "Dil", aboutLabel: "Uygulama Hakkında:", aboutDesc: "Bu uygulama sadece <strong>eğitim amaçlı</strong> geliştirilmiştir.", joinTelegram: "Telegram'a katılın", favoritesTitle: "Favorileriniz", noFavorites: "Henüz favori eklemediniz!", noFavoritesSub: "Kaydetmek için herhangi bir uygulamadaki ♡ simgesine dokunun.", aboutItem: "Bu Uygulama Hakkında", requestUpdate: "Güncelleme İste", screenshots: "Ekran Görüntüleri", rateThisApp: "Bu Uygulamayı Değerlendir", yourName: "Adınız", writeReview: "Yorum yaz...", postReview: "Yorumu Gönder", noReviews: "Henüz yorum yok. İlk siz olun!", darkMode: "Karanlık Mod", refreshCache: "Önbelleği Yenile", clearAllData: "Tüm Verileri Temizle", soundClicks: "Tıklama Titreşimi", heartAnimation: "Floating Hearts", general: "Genel", data: "Veri", latestApps: "En Son Uygulamalar", popularApps: "Popüler Uygulamalar", category: "Kategori", favorite: "Favori", cancel: "İptal", categories: "Kategoriler", appNotFound: "Uygulama bulunamadı.", noResults: "Sonuç bulunamadı.", howToDownload: "Nasıl İndirilir", viewOnPlayStore: "Play Store'da Görüntüle" },
+        es: { loading: "Cargando un toque de magia...", homeTitle: "¡Hola, Belleza!", searchPlaceholder: "Encuentra algo especial...", defaultCategory: "✨ Imprescindibles", download: "Descargar", settingsTitle: "Ajustes", langLabel: "Idioma", aboutLabel: "Acerca de la App:", aboutDesc: "Esta aplicación se ha desarrollado <strong>únicamente con fines educativos</strong>.", joinTelegram: "Únete a nuestro Telegram", favoritesTitle: "Tus Favoritos", noFavorites: "¡Aún no has añadido ningún favorito!", noFavoritesSub: "Toca el ♡ en cualquier app para guardarla aquí.", aboutItem: "Acerca de esta App", requestUpdate: "Solicitar Actualización", screenshots: "Capturas de pantalla", rateThisApp: "Valora esta App", yourName: "Tu Nombre", writeReview: "Escribe una reseña...", postReview: "Publicar Reseña", noReviews: "Aún no hay reseñas. ¡Sé el primero!", darkMode: "Modo Oscuro", refreshCache: "Refrescar Caché", clearAllData: "Borrar todos los datos", soundClicks: "Vibración al clicar", heartAnimation: "Floating Hearts", general: "General", data: "Datos", latestApps: "Últimas Apps", popularApps: "Apps Populares", category: "Categoría", favorite: "Favorito", cancel: "Cancelar", categories: "Categorías", appNotFound: "Aplicación no encontrada.", noResults: "No se encontraron resultados.", howToDownload: "Cómo Descargar", viewOnPlayStore: "Ver en Play Store" },
+        pt: { loading: "Carregando um toque de magia...", homeTitle: "Olá, Lindeza!", searchPlaceholder: "Encontre algo especial...", defaultCategory: "✨ Essenciais", download: "Baixar", settingsTitle: "Configurações", langLabel: "Idioma", aboutLabel: "Sobre o App:", aboutDesc: "Este aplicativo foi desenvolvido <strong>apenas para fins educacionais</strong>.", joinTelegram: "Entre no nosso Telegram", favoritesTitle: "Seus Favoritos", noFavorites: "Você ainda não adicionou nenhum favorito!", noFavoritesSub: "Toque no ♡ em qualquer app para salvá-lo aqui.", aboutItem: "Sobre este App", requestUpdate: "Pedir Atualização", screenshots: "Capturas de tela", rateThisApp: "Avalie este App", yourName: "Seu Nome", writeReview: "Escreva um comentário...", postReview: "Publicar Comentário", noReviews: "Nenhum comentário ainda. Seja o primeiro!", darkMode: "Modo Escuro", refreshCache: "Atualizar Cache", clearAllData: "Limpar Todos os Dados", soundClicks: "Vibração ao Clicar", heartAnimation: "Floating Hearts", general: "Geral", data: "Dados", latestApps: "Apps Recentes", popularApps: "Apps Populares", category: "Categoria", favorite: "Favorito", cancel: "Cancelar", categories: "Categorias", appNotFound: "Aplicativo não encontrado.", noResults: "Nenhum resultado encontrado.", howToDownload: "Como Baixar", viewOnPlayStore: "Ver na Play Store" }
+    };
+    
+    Object.keys(allLanguages).forEach(langCode => { if (!translations[langCode]) { translations[langCode] = translations.en; } const langObject = translations[langCode]; for (const key in translations.en) { if (!langObject[key]) { langObject[key] = translations.en[key]; } }});
+    const t = (key) => translations[state.activeLang]?.[key] || translations.en[key];
+    // --- END: LANGUAGE & TRANSLATION SYSTEM ---
+
+    // --- DOM Element Cache ---
+    const DOMElements = {
+        appRoot: document.getElementById('appRoot'),
+        header: document.querySelector('.header'),
+        welcomeTitle: document.querySelector('.welcome-title'),
+        bottomNav: document.getElementById('bottomNav'),
+        pages: {
+            home: document.getElementById('homePage'),
+            details: document.getElementById('detailPage'),
+            favorites: document.getElementById('favoritesPage'),
+            settings: document.getElementById('settingsPage'),
+        },
+        home: {
+            appGrid: document.getElementById('appGrid'),
+            pagination: document.getElementById('paginationContainer'),
+            popularCarousel: document.getElementById('popularCarouselContainer'),
+            pageTitle: document.getElementById('pageTitle'),
+        },
+        search: {
+            overlay: document.getElementById('searchOverlay'),
+            input: document.getElementById('mainSearchInput'),
+            resultsContainer: document.getElementById('searchResultsContainer'),
+            label: document.querySelector('#searchOverlay .search-label'),
+            closeBtn: document.querySelector('#searchOverlay .close-search-btn')
+        },
+        menu: {
+            overlay: document.querySelector('.menu-overlay'),
+            container: document.querySelector('.side-menu'),
+            brand: document.querySelector('.side-menu-brand'),
+            nav: document.getElementById('sideMenuNav'),
+        },
+        lightbox: {
+            overlay: document.getElementById('lightboxOverlay'),
+            image: document.getElementById('lightboxImage'),
+            closeBtn: document.getElementById('lightboxClose'),
+        },
+        languageModal: {
+            container: document.getElementById('languageModal'),
+            title: document.querySelector('#languageModal .modal-title'),
+            body: document.querySelector('#languageModal .modal-body'),
+            closeBtn: document.querySelector('#languageModal .modal-close'),
+        }
+    };
+
+
+    // --- START: RENDERING ENGINE (Optimized) ---
+    function createAppCardNode(app) {
+        const card = document.createElement('div');
+        card.className = 'app-card ripple';
+        card.dataset.id = app.id;
+        // Updated to show Version and Size
+        const rating = app.averageRating ? app.averageRating.toFixed(1) : (app.rating || 0);
+        card.innerHTML = `<img class="app-card-icon" src="${app.img}" loading="lazy" onerror="this.src='https://i.ibb.co/68Z2pL4/placeholder.png';"><h4 class="app-name">${app.name}</h4><div class="app-meta">${rating} ★ | v${app.version || 'N/A'} | ${app.size || ''}</div>`;
+        return card;
+    }
+
+    function updateAppGrid(apps) {
+        DOMElements.home.appGrid.innerHTML = ''; // Clear previous content efficiently
+        const fragment = document.createDocumentFragment();
+        apps.forEach(app => fragment.appendChild(createAppCardNode(app)));
+        DOMElements.home.appGrid.appendChild(fragment);
+    }
+    
+    function updatePagination(totalItems) {
+        const totalPages = Math.ceil(totalItems / state.itemsPerPage);
+        const paginationContainer = DOMElements.home.pagination;
+        paginationContainer.innerHTML = '';
+        if (totalPages <= 1) return;
+        
+        let paginationHTML = '';
+        for (let i = 1; i <= totalPages; i++) {
+            paginationHTML += `<button class="page-link ripple ${i === state.currentPage ? 'active' : ''}" data-page="${i}">${i}</button>`;
+        }
+        paginationContainer.innerHTML = paginationHTML;
+    }
+
+    function renderHomePage() {
+        // Checking for isPremium or isHot (Premium Apps Free uses isHot)
+        const popularApps = state.apps.filter(app => app.isPremium === true || app.isHot === true);
+        DOMElements.home.popularCarousel.innerHTML = (popularApps.length > 0 && state.currentFilter === 'home')
+            ? `<h2 class="section-title">${t('popularApps')}</h2><div class="popular-carousel">${popularApps.map(createPopularCardHTML).join('')}</div>`
+            : '';
+
+        const filteredApps = state.currentFilter === 'home' 
+            ? state.apps 
+            : state.apps.filter(app => (app.category || t('defaultCategory')) === state.currentFilter);
+
+        DOMElements.home.pageTitle.textContent = state.currentFilter === 'home' ? t('latestApps') : `${t('category')}: ${state.currentFilter}`;
+        
+        const startIndex = (state.currentPage - 1) * state.itemsPerPage;
+        const paginatedApps = filteredApps.slice(startIndex, startIndex + state.itemsPerPage);
+
+        updateAppGrid(paginatedApps);
+        updatePagination(filteredApps.length);
+    }
+    
+    // This is now only generated once on initial load.
+    function preRenderSettingsPage() {
+        const settingsHTML = `
+            <header class="settings-header"><h1 class="welcome-title">${t('settingsTitle')}</h1></header>
+            <main class="settings-main">
+                <div class="settings-group"><h3 class="settings-group-title">${t('general')}</h3><div class="settings-card"><div class="settings-item ripple" data-action="openLanguageModal"><div class="settings-item-icon grad-1"><i class="material-icons-round">language</i></div><p class="settings-item-label">${t('langLabel')}</p><div class="settings-item-control"><span id="current-lang-label">${allLanguages[state.activeLang]}</span><i class="material-icons-round">chevron_right</i></div></div><div class="settings-item"><div class="settings-item-icon grad-2"><i class="material-icons-round">brightness_4</i></div><p class="settings-item-label">${t('darkMode')}</p><label class="switch"><input type="checkbox" id="darkModeToggle" ${document.body.classList.contains('dark-mode') ? 'checked' : ''}><span class="slider"></span></label></div><div class="settings-item"><div class="settings-item-icon grad-2"><i class="material-icons-round">vibration</i></div><p class="settings-item-label">${t('soundClicks')}</p><label class="switch"><input type="checkbox" id="soundOnClickToggle" ${localStorage.getItem('soundOnClick') === 'true' ? 'checked' : ''}><span class="slider"></span></label></div><div class="settings-item"><div class="settings-item-icon grad-3"><i class="material-icons-round">favorite</i></div><p class="settings-item-label">${t('heartAnimation')}</p><label class="switch"><input type="checkbox" id="heartAnimationToggle" ${localStorage.getItem('heartAnimation') !== 'false' ? 'checked' : ''}><span class="slider"></span></label></div></div></div>
+                <div class="settings-group"><h3 class="settings-group-title">${t('data')}</h3><div class="settings-card"><div class="settings-item ripple" data-action="clearCache"><div class="settings-item-icon grad-3"><i class="material-icons-round">sync</i></div><p class="settings-item-label">${t('refreshCache')}</p></div><div class="settings-item ripple" data-action="clearAllData"><div class="settings-item-icon grad-4"><i class="material-icons-round">delete_sweep</i></div><p class="settings-item-label">${t('clearAllData')}</p></div></div></div>
+                <div class="settings-group"><div class="settings-card"><div style="padding: 16px 20px; font-size: 14px; text-align: justify;"><strong>${t('aboutLabel')}</strong> <span>${t('aboutDesc')}</span><br><br><a href="https://t.me/HyperMod_1" class="btn btn-primary ripple" style="width:100%; margin-top:10px;" target="_blank">${t('joinTelegram')}</a></div></div></div>
+            </main>`;
+        DOMElements.pages.settings.innerHTML = settingsHTML;
+    }
+
+    function renderFavoritesPage() {
+        const favApps = state.apps.filter(app => state.favorites.includes(app.id));
+        DOMElements.pages.favorites.innerHTML = `
+            <header class="favorites-header"><h1 class="welcome-title">${t('favoritesTitle')}</h1></header>
+            <main class="favorites-main">
+                ${favApps.length > 0 ? `<div class="app-grid">${favApps.map(app => createAppCardNode(app).outerHTML).join('')}</div>` : `<div style="text-align:center; padding: 50px 20px; color: var(--text-secondary);"><i class="material-icons-round" style="font-size: 4rem;">favorite_border</i><h2>${t('noFavorites')}</h2><p>${t('noFavoritesSub')}</p></div>`}
+            </main>`;
+    }
+
+    function renderDetailPage(itemId) {
+        const page = DOMElements.pages.details;
+        // FIX 1: Ensure loose equality check or string comparison to avoid "App not found" due to type mismatch (number vs string)
+        const item = state.apps.find(a => String(a.id) === String(itemId));
+        if (!item) { page.innerHTML = `<p>${t('appNotFound')}</p>`; return; }
+
+        const reviews = Array.isArray(item.reviews) ? item.reviews : [];
+        const avgRating = reviews.length > 0 ? (reviews.reduce((s, r) => s + Number(r.rating), 0) / reviews.length).toFixed(1) : (item.averageRating || item.rating || 0);
+        
+        // FIX 2: Restore Hypermod Bullet Feature Logic (Checkmarks) for array data
+        // Check both 'desc' and 'description' fields and ensure it handles arrays correctly
+        let descListHTML = '';
+        const rawDesc = item.desc || item.description;
+
+        if (Array.isArray(rawDesc)) {
+            descListHTML = rawDesc.map(d => `<li><span class="material-icons-round">check_circle</span><span>${d}</span></li>`).join('');
+        } else if (typeof rawDesc === 'string') {
+             // Handle if description is a simple string, show as one item or split by newlines if preferred
+             descListHTML = `<li><span class="material-icons-round">info</span><span>${rawDesc}</span></li>`;
+        } else {
+             descListHTML = `<li><span class="material-icons-round">info</span><span>No description available.</span></li>`;
+        }
+        
+        const screenshotHTML = (item.screenshots && item.screenshots.length > 0) ? `<div class="detail-section-content"><h4 class="subtitle">${t('screenshots')}</h4><div class="screenshot-gallery">${item.screenshots.map((ss, i) => `<img src="${ss}" class="screenshot-img" data-index="${i}" loading="lazy">`).join('')}</div></div>` : '';
+        const isFav = state.favorites.includes(item.id);
+        
+        // FIX 3: Premium Apps Free Style Play Store Button (Image)
+        // Using an image instead of text for the Play Store link
+        const playStoreButtonHTML = item.playStoreLink ? `<a href="${item.playStoreLink}" target="_blank" class="btn btn-secondary ripple" style="padding: 0; background: none; border: none; box-shadow: none;"><img src="https://i.postimg.cc/Wbw73V2y/Picsart-25-07-13-10-48-29-353.png" style="height: 48px; width: auto; display: block;" alt="Get it on Google Play"></a>` : '';
+        
+        page.innerHTML = `
+            <div>
+                <div class="detail-header"><button class="btn-back ripple" data-action="goBack"><span class="material-icons-round">arrow_back</span></button><h2 class="detail-title">${item.name}</h2></div>
+                <div style="padding: 0 16px;">
+                    <div class="detail-card"><img id="detailAppImage" src="${item.img}" onerror="this.src='https://i.ibb.co/68Z2pL4/placeholder.png';"><div class="detail-info"><h3 id="detailAppName">${item.name}</h3><p id="detailAppCategory">${item.category} • v${item.version || 'N/A'} • ${item.size || ''}</p><div id="detailStarRating"><span class="stars">${'★'.repeat(Math.round(avgRating))}${'☆'.repeat(5 - Math.round(avgRating))}</span>&nbsp;(${avgRating})</div></div></div>
+                    <div class="detail-actions">
+                        <a href="${item.link}" target="_blank" class="btn btn-primary ripple"><span class="material-icons-round">download</span><span>${t('download')}</span></a>
+                        <a href="https://player.vimeo.com/video/1080856907" target="_blank" class="btn btn-secondary ripple"><span class="material-icons-round">play_circle_outline</span><span>${t('howToDownload')}</span></a>
+                        ${playStoreButtonHTML}
+                        <button id="favBtn" class="btn btn-secondary ripple" data-action="toggleFavorite" data-id="${item.id}"><span class="material-icons-round">${isFav ? 'favorite' : 'favorite_border'}</span><span>${t('favorite')}</span></button>
+                        <a href="https://t.me/HyperMod_1" target="_blank" class="btn btn-secondary ripple"><span class="material-icons-round">sync</span><span>${t('requestUpdate')}</span></a>
+                    </div>
+                    <div class="detail-section-content"><h4 class="subtitle">${t('aboutItem')}</h4><div id="detailAppDescContainer"><ul>${descListHTML}</ul></div></div>
+                    ${screenshotHTML}
+                </div>
+            </div>`;
+    }
+    // --- END: RENDERING ENGINE ---
+
+    
+    // --- START: PAGE & STATE MANAGEMENT ---
+    function setActivePage(pageName) {
+        state.activePage = pageName;
+        state.currentItemId = null;
+
+        for (const page in DOMElements.pages) {
+            DOMElements.pages[page].classList.add('hidden');
+        }
+        DOMElements.pages[pageName].classList.remove('hidden');
+
+        const showHeader = (pageName === 'home' || pageName === 'favorites' || pageName === 'settings');
+        DOMElements.header.classList.toggle('hidden', !showHeader);
+        DOMElements.bottomNav.classList.remove('hidden');
+
+        // Update header title based on page
+        if (pageName === 'home') DOMElements.welcomeTitle.textContent = t('homeTitle');
+        if (pageName === 'favorites') DOMElements.welcomeTitle.textContent = t('favoritesTitle');
+        if (pageName === 'settings') DOMElements.welcomeTitle.textContent = t('settingsTitle');
+
+        if (pageName === 'home') renderHomePage();
+        if (pageName === 'favorites') renderFavoritesPage();
+
+        updateBottomNav();
+        window.scrollTo(0, 0);
+    }
+    
+    function showItemDetail(itemId) {
+        state.currentItemId = itemId;
+        for (const page in DOMElements.pages) {
+            DOMElements.pages[page].classList.add('hidden');
+        }
+        DOMElements.pages.details.classList.remove('hidden');
+        DOMElements.header.classList.add('hidden');
+        DOMElements.bottomNav.classList.add('hidden');
+        renderDetailPage(itemId);
+        window.scrollTo(0, 0);
+    }
+    
+    function updateBottomNav() {
+        DOMElements.bottomNav.innerHTML = `
+            <div class="nav-item ripple ${state.activePage==='home'?'active':''}" data-page="home"><i class="material-icons-round">home</i></div>
+            <div class="nav-item ripple ${state.activePage==='favorites'?'active':''}" data-page="favorites"><i class="material-icons-round">favorite</i></div>
+            <div class="nav-item ripple ${state.activePage==='settings'?'active':''}" data-page="settings"><i class="material-icons-round">tune</i></div>
+        `;
+    }
+    // --- END: PAGE & STATE MANAGEMENT ---
+    
+    
+    // --- START: UI INTERACTIONS & ACTIONS ---
+    const actions = {
+        goBack: () => setActivePage(state.activePage),
+        navigate: (page) => {
+            if (state.activePage === page && state.currentFilter === 'home') return;
+            state.currentFilter = 'home';
+            state.currentPage = 1;
+            setActivePage(page);
+        },
+        changePage: (pageNumber) => {
+            state.currentPage = pageNumber;
+            renderHomePage();
+            window.scrollTo(0, 0);
+        },
+        filterByCategory: (category) => {
+            toggleMenu();
+            state.currentPage = 1;
+            state.currentFilter = category;
+            setActivePage('home');
+        },
+        toggleFavorite: (id) => {
+            const favIndex = state.favorites.indexOf(id);
+            if (favIndex > -1) state.favorites.splice(favIndex, 1);
+            else state.favorites.push(id);
+            localStorage.setItem('favorites', JSON.stringify(state.favorites));
+
+            const favBtn = document.getElementById('favBtn');
+            if (favBtn) {
+                favBtn.querySelector('.material-icons-round').textContent = state.favorites.includes(id) ? 'favorite' : 'favorite_border';
+            }
+            if (state.activePage === 'favorites') renderFavoritesPage();
+        },
+        toggleDarkMode: (isChecked) => {
+            document.body.classList.toggle('dark-mode', isChecked);
+            localStorage.setItem('darkMode', isChecked);
+        },
+        toggleSound: (isChecked) => {
+            localStorage.setItem('soundOnClick', isChecked);
+        },
+        toggleHeartAnimation: (isChecked) => {
+            localStorage.setItem('heartAnimation', isChecked);
+            location.reload(); // Reload to apply the change
+        },
+        clearCache: () => {
+            localStorage.removeItem('apps_cache');
+            localStorage.removeItem('apps_timestamp');
+            alert('Cache cleared. The app will now reload.');
+            location.reload();
+        },
+        clearAllData: () => {
+            localStorage.clear();
+            alert('All local data cleared. The app will now reload.');
+            location.reload();
+        },
+        openLanguageModal: () => {
+            const modal = DOMElements.languageModal;
+            modal.title.textContent = t('langLabel');
+            modal.body.innerHTML = Object.entries(allLanguages).map(([code, name]) => `<div class="lang-option ripple ${code === state.activeLang ? 'active' : ''}" data-lang="${code}"><span>${name}</span></div>`).join('');
+            modal.container.classList.remove('hidden');
+            modal.container.style.display = 'flex';
+        },
+        closeLanguageModal: () => {
+            DOMElements.languageModal.container.style.display = 'none';
+        },
+        changeLanguage: (lang) => {
+            state.activeLang = lang;
+            localStorage.setItem('language', lang);
+            location.reload();
+        }
+    };
+    // --- END: UI INTERACTIONS & ACTIONS ---
+
+    // --- START: GENERIC UI FUNCTIONS ---
+    function toggleMenu() {
+        DOMElements.menu.brand.textContent = t('categories');
+        DOMElements.menu.container.classList.toggle('active');
+        DOMElements.menu.overlay.classList.toggle('active');
+        document.body.classList.toggle('no-scroll');
+    }
+
+    function toggleSearch() {
+        const overlay = DOMElements.search.overlay;
+        overlay.classList.toggle('active');
+        document.body.classList.toggle('no-scroll');
+        if (overlay.classList.contains('active')) {
+            DOMElements.search.label.textContent = t('searchPlaceholder');
+            DOMElements.search.closeBtn.textContent = t('cancel');
+            DOMElements.search.input.focus();
+        }
+    }
+
+    function showLightbox(index) {
+        const item = state.apps.find(a => String(a.id) === String(state.currentItemId));
+        if (!item || !item.screenshots || !item.screenshots.length) return;
+        DOMElements.lightbox.image.src = item.screenshots[parseInt(index)];
+        DOMElements.lightbox.overlay.classList.add('active');
+        document.body.classList.add('no-scroll');
+    }
+
+    function hideLightbox() {
+        DOMElements.lightbox.overlay.classList.remove('active');
+        document.body.classList.remove('no-scroll');
+    }
+
+    function createSideNav() {
+        const getCategoryIcon = (cat) => ({ 'Game': 'sports_esports', 'Video': 'movie', 'Photo': 'photo_camera', 'Tool': 'build', 'Social': 'group' }[cat] || 'apps');
+        const categories = ['home', ...new Set(state.apps.map(app => app.category || t('defaultCategory')).filter(Boolean))];
+        DOMElements.menu.nav.innerHTML = categories.map(cat => `
+            <div class="side-menu-nav-item ripple" data-category="${cat}">
+                <span class="material-icons-round">${cat === 'home' ? 'home' : getCategoryIcon(cat)}</span>
+                <span>${cat === 'home' ? t('latestApps') : cat}</span>
+            </div>`).join('');
+    }
+    // --- END: GENERIC UI FUNCTIONS ---
+    
+
+    // --- START: EVENT HANDLING (DELEGATED & OPTIMIZED) ---
+    function setupGlobalEventListeners() {
+        document.body.addEventListener('click', (e) => {
+            const rippleTarget = e.target.closest('.ripple');
+            if (rippleTarget && localStorage.getItem('soundOnClick') === 'true' && navigator.vibrate) {
+                navigator.vibrate(10);
+            }
+            
+            const navItem = e.target.closest('.nav-item[data-page]');
+            if (navItem) { actions.navigate(navItem.dataset.page); return; }
+
+            const appCard = e.target.closest('.app-card, .popular-card-item');
+            if (appCard) { showItemDetail(appCard.dataset.id); return; }
+
+            const pageLink = e.target.closest('.page-link[data-page]');
+            if(pageLink) { actions.changePage(parseInt(pageLink.dataset.page)); return; }
+            
+            const categoryItem = e.target.closest('.side-menu-nav-item[data-category]');
+            if(categoryItem) { actions.filterByCategory(categoryItem.dataset.category); return; }
+
+            const langOption = e.target.closest('.lang-option[data-lang]');
+            if (langOption) { actions.changeLanguage(langOption.dataset.lang); return; }
+            
+            const actionTarget = e.target.closest('[data-action]');
+            if(actionTarget) {
+                const action = actionTarget.dataset.action;
+                const id = actionTarget.dataset.id;
+                if (actions[action]) actions[action](id);
+                return;
+            }
+
+            // Simple targets
+            if (e.target.closest('.header-logo-container') || e.target.closest('.close-menu-btn') || e.target === DOMElements.menu.overlay) toggleMenu();
+            if (e.target.closest('.search-btn') || e.target.closest('.close-search-btn')) toggleSearch();
+            if (e.target.closest('#lightboxClose') || e.target === DOMElements.lightbox.overlay) hideLightbox();
+            if (e.target === DOMElements.languageModal.closeBtn) actions.closeLanguageModal();
+        });
+        
+        // Listeners for inputs
+        document.body.addEventListener('change', e => {
+            if (e.target.id === 'darkModeToggle') actions.toggleDarkMode(e.target.checked);
+            if (e.target.id === 'soundOnClickToggle') actions.toggleSound(e.target.checked);
+            if (e.target.id === 'heartAnimationToggle') actions.toggleHeartAnimation(e.target.checked);
+        });
+        
+        DOMElements.search.input.oninput = (e) => {
+            const query = e.target.value.toLowerCase().trim();
+            const container = DOMElements.search.resultsContainer;
+            if (query.length < 1) { container.innerHTML = ''; return; }
+            const results = state.apps.filter(app => app.name.toLowerCase().includes(query));
+            container.innerHTML = results.length > 0 ? results.map(app => createAppCardNode(app).outerHTML).join('') : `<p style="color:var(--text-secondary); text-align:center; grid-column: 1 / -1;">${t('noResults')}</p>`;
+            container.querySelectorAll('.app-card').forEach(card => card.onclick = () => { toggleSearch(); showItemDetail(card.dataset.id); });
+        };
+    }
+    // --- END: EVENT HANDLING ---
+
+    // --- START: INITIALIZATION & DATA FETCHING ---
+    async function fetchApps() {
+        try {
+            const snapshot = await db.ref('apps').once('value');
+            if (snapshot.exists()) {
+                const data = snapshot.val();
+                // Map object to array and sort by addedTimestamp (descending)
+                const newApps = Object.keys(data).map(key => ({ id: key, ...data[key] })).sort((a, b) => (b.addedTimestamp || b.timestamp || 0) - (a.addedTimestamp || a.timestamp || 0));
+                
+                // Update state and cache
+                state.apps = newApps;
+                localStorage.setItem('apps_cache', JSON.stringify(newApps));
+                localStorage.setItem('apps_timestamp', Date.now());
+
+                return newApps;
+            }
+        } catch (error) {
+            console.error("Firebase error:", error);
+            return null; // Return null on error
+        }
+    }
+
+    async function initialLoad() {
+        // Basic setup
+        DOMElements.home.pageTitle.textContent = t('loading');
+        if (localStorage.getItem('darkMode') === 'true') document.body.classList.add('dark-mode');
+        else localStorage.setItem('darkMode', 'false');
+
+        if (localStorage.getItem('soundOnClick') === null) localStorage.setItem('soundOnClick', 'true');
+        if (localStorage.getItem('heartAnimation') === null) localStorage.setItem('heartAnimation', 'true');
+        
+        if (state.activeLang === 'ar') document.documentElement.setAttribute('dir', 'rtl');
+        else document.documentElement.setAttribute('dir', 'ltr');
+
+        // Pre-render static pages to avoid lag later
+        preRenderSettingsPage();
+
+        // Caching strategy
+        const cachedApps = JSON.parse(localStorage.getItem('apps_cache'));
+        const cacheTimestamp = localStorage.getItem('apps_timestamp');
+        const CACHE_DURATION = 3600 * 1000; // 1 hour
+
+        if (cachedApps && (Date.now() - cacheTimestamp < CACHE_DURATION)) {
+            state.apps = cachedApps;
+            // Render immediately from cache
+            createSideNav();
+            setActivePage('home');
+            // Then, fetch fresh data in the background
+            const freshApps = await fetchApps();
+            if (freshApps && JSON.stringify(freshApps) !== JSON.stringify(cachedApps)) {
+                // If data is different, refresh the view if user is on homepage
+                if(state.activePage === 'home') renderHomePage();
+            }
+        } else {
+            // No valid cache, fetch from Firebase
+            await fetchApps();
+            createSideNav();
+            setActivePage('home');
+        }
+    }
+    
+    // Optimized heart animation
+    function setupHeartAnimation() {
+        if (localStorage.getItem('heartAnimation') === 'false') return;
+
+        const container = document.getElementById('hearts-container');
+        if (!container) return;
+        
+        const dayOfWeek = new Date().getDay();
+        const heartColors = [['rgba(222, 49, 99, 0.5)','rgba(240, 98, 146, 0.5)'],['rgba(142, 68, 173, 0.5)','rgba(195, 155, 211, 0.5)'],['rgba(41, 128, 185, 0.5)','rgba(133, 193, 233, 0.5)'],['rgba(39, 174, 96, 0.5)','rgba(125, 206, 160, 0.5)'],['rgba(230, 126, 34, 0.5)','rgba(240, 178, 122, 0.5)'],['rgba(22, 160, 133, 0.5)','rgba(118, 215, 196, 0.5)'],['rgba(192, 57, 43, 0.5)','rgba(236, 112, 99, 0.5)']];
+        const dayColors = heartColors[dayOfWeek];
+
+        const heartPool = [];
+        for (let i = 0; i < 15; i++) { // Pool of 15 hearts
+            const h = document.createElement('div');
+            h.classList.add('heart', 'paused');
+            h.innerHTML = `<svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"></path></svg>`;
+            container.appendChild(h);
+            h.addEventListener('animationend', () => {
+                h.classList.add('paused');
+            });
+            heartPool.push(h);
+        }
+
+        setInterval(() => {
+            const heart = heartPool.find(h => h.classList.contains('paused'));
+            if (heart) {
+                heart.classList.remove('paused');
+                const chosenColor = Math.random() > 0.5 ? dayColors[0] : dayColors[1];
+                heart.style.setProperty('--size', `${Math.random() * 40 + 20}px`);
+                heart.style.setProperty('--color', chosenColor);
+                heart.style.left = `${Math.random()*100}%`; 
+                heart.style.animationDuration = `${Math.random()*5+8}s`;
+            }
+        }, 800); // Reduced frequency for better performance
+    }
+    
+    // --- START APP ---
+    document.addEventListener('DOMContentLoaded', () => {
+        const dayOfWeek = new Date().getDay();
+        document.body.classList.add('day-' + dayOfWeek);
+        setupGlobalEventListeners();
+        initialLoad();
+        setupHeartAnimation();
+    });
+    // Placeholder functions from original code
+    function createPopularCardHTML(app) {
+        return `<div class="popular-card-item" data-id="${app.id}"><div class="popular-card-base"><div class="popular-app-logo-wrapper"><img src="${app.img}" class="popular-app-logo" onerror="this.src='https.i.ibb.co/68Z2pL4/placeholder.png';"></div></div><h3 class="popular-card-app-name">${app.name}</h3></div>`;
+    }
+</script>
 
 </body>
 </html>
