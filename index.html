@@ -58,6 +58,18 @@
         @keyframes fade-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .page, .page-content { animation: fade-in .4s ease-out; }
 
+        /* --- UPDATED ANIMATION: LIVESTREAM / BLINK STYLE --- */
+        @keyframes live-blink {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.15); opacity: 0.6; filter: drop-shadow(0 0 5px var(--primary)); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .blink-live {
+            display: inline-block;
+            animation: live-blink 1.2s infinite ease-in-out;
+            will-change: transform, opacity;
+        }
+
         .ripple { position: relative; overflow: hidden; -webkit-tap-highlight-color: transparent; }
         .ripple-effect { position: absolute; border-radius: 50%; background-color: rgba(255, 255, 255, 0.4); transform: scale(0); animation: ripple-animation 0.6s linear; }
         @keyframes ripple-animation { to { transform: scale(4); opacity: 0; } }
@@ -205,11 +217,55 @@
         html[dir="rtl"] .settings-item-control .material-icons-round { transform: scaleX(-1); }
         html[dir="rtl"] .star-rating { direction: ltr; }
         html[dir="rtl"] #detailAppDescContainer li .material-icons-round { margin-left: 12px; margin-right: 0; }
+
+        /* --- REALTIME NOTIFICATION TOAST --- */
+        .notification-toast {
+            position: fixed;
+            top: -100px; /* Initially hidden */
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--primary);
+            padding: 15px 20px;
+            border-radius: 50px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            z-index: 5000;
+            transition: top 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+            cursor: pointer;
+            width: 90%;
+            max-width: 400px;
+        }
+        .notification-toast.active { top: 80px; }
+        .notification-toast img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary); }
+        .notification-toast-content { flex: 1; }
+        .notification-title { font-weight: bold; color: var(--primary); font-size: 14px; }
+        .notification-body { font-size: 12px; color: var(--text-primary); }
+
+        /* --- USER RATING SECTION --- */
+        .user-rating-section { background: var(--surface); padding: 20px; border-radius: 20px; margin-top: 20px; text-align: center; border: 1px solid var(--glass-border); }
+        .rating-stars { display: flex; justify-content: center; gap: 10px; margin-top: 10px; direction: ltr; }
+        .rating-star-btn { font-size: 35px; color: #ccc; cursor: pointer; transition: transform 0.2s, color 0.2s; }
+        .rating-star-btn:hover, .rating-star-btn.selected { color: var(--star-color); transform: scale(1.2); }
     </style>
 </head>
 <body>
 
 <div id="hearts-container"></div>
+
+<!-- Notification Sound & Toast -->
+<audio id="notifSound" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" preload="auto"></audio>
+<div id="notificationToast" class="notification-toast ripple">
+    <img id="notifImage" src="" alt="">
+    <div class="notification-toast-content">
+        <div class="notification-title">✨ New Update!</div>
+        <div id="notifMessage" class="notification-body">A new app has been added.</div>
+    </div>
+    <span class="material-icons-round" style="color: var(--primary)">arrow_forward</span>
+</div>
 
 <div class="menu-overlay"></div>
 <div class="side-menu">
@@ -296,15 +352,8 @@
     // --- START: LANGUAGE & TRANSLATION SYSTEM ---
     const allLanguages = { en: "English", bn: "বাংলা", hi: "हिन्दी", id: "Bahasa Indonesia", ar: "العربية", fr: "Français", tr: "Türkçe", es: "Español", pt: "Português" };
     const translations = {
-        en: { loading: "Loading a touch of magic...", homeTitle: "Hello, Beautiful!", searchPlaceholder: "Find something special...", defaultCategory: "✨ Must-Haves", download: "Download", settingsTitle: "Settings", langLabel: "Language", aboutLabel: "About App:", aboutDesc: "This application is developed for <strong>educational purposes only</strong>.", joinTelegram: "Join our Telegram", favoritesTitle: "Your Favorites", noFavorites: "You haven't added any favorites yet!", noFavoritesSub: "Tap the ♡ on any app to save it here.", aboutItem: "About this App", requestUpdate: "Request Update", screenshots: "Screenshots", rateThisApp: "Rate this App", yourName: "Your Name", writeReview: "Write a review...", postReview: "Post Review", noReviews: "No reviews yet. Be the first!", darkMode: "Dark Mode", refreshCache: "Refresh Cache", clearAllData: "Clear All Data", soundClicks: "Click Vibration", heartAnimation: "Floating Hearts", general: "General", data: "Data", latestApps: "Latest Apps", popularApps: "Popular Apps", category: "Category", favorite: "Favorite", cancel: "Cancel", categories: "Categories", appNotFound: "App not found.", noResults: "No results found.", howToDownload: "How to Download", viewOnPlayStore: "View on Play Store" },
-        bn: { loading: "একটু অপেক্ষা করুন...", homeTitle: "স্বাগতম!", searchPlaceholder: "কিছু খুঁজুন...", defaultCategory: "✨ প্রয়োজনীয়", download: "ডাউনলোড", settingsTitle: "সেটিংস", langLabel: "ভাষা", aboutLabel: "অ্যাপ সম্পর্কে:", aboutDesc: "এই অ্যাপ্লিকেশনটি শুধুমাত্র <strong>শিক্ষামূলক উদ্দেশ্যে</strong> তৈরি করা হয়েছে।", joinTelegram: "টেলিগ্রামে যোগ দিন", favoritesTitle: "আপনার পছন্দের তালিকা", noFavorites: "আপনি এখনো পছন্দের কিছু যোগ করেননি!", noFavoritesSub: "যেকোনো অ্যাপে ♡ ট্যাপ করে এখানে সেভ করুন।", aboutItem: "এই অ্যাপ সম্পর্কে", requestUpdate: "আপডেটের জন্য অনুরোধ", screenshots: "স্ক্রিনশট", rateThisApp: "অ্যাপটি রেট দিন", yourName: "আপনার নাম", writeReview: "রিভিউ লিখুন...", postReview: "রিভিউ পোস্ট করুন", noReviews: "এখনো কোনো রিভিউ নেই। প্রথম রিভিউটি আপনি দিন!", darkMode: "ডার্ক মোড", refreshCache: "ক্যাশে রিফ্রেশ করুন", clearAllData: "সমস্ত ডেটা মুছুন", soundClicks: "ক্লিক ভাইব্রেশন", heartAnimation: "ফ্লোটিং হার্ট", general: "সাধারণ", data: "ডেটা", latestApps: "সর্বশেষ অ্যাপস", popularApps: "জনপ্রিয় অ্যাপস", category: "ক্যাটাগরি", favorite: "পছন্দের", cancel: "বাতিল", categories: "ক্যাটাগরি সমূহ", appNotFound: "অ্যাপ খুঁজে পাওয়া যায়নি।", noResults: "কোনো ফলাফল পাওয়া যায়নি।", howToDownload: "কিভাবে ডাউনলোড করবেন", viewOnPlayStore: "প্লে স্টোরে দেখুন" },
-        hi: { loading: "एक जादुई स्पर्श लोड हो रहा है...", homeTitle: "नमस्ते, सुंदर!", searchPlaceholder: "कुछ खास ढूंढें...", defaultCategory: "✨ ज़रूरी ऐप्स", download: "डाउनलोड", settingsTitle: "सेटिंग्स", langLabel: "भाषा", aboutLabel: "ऐप के बारे में:", aboutDesc: "यह एप्लिकेशन केवल <strong>शैक्षिक उद्देश्यों</strong> के लिए विकसित किया गया है।", joinTelegram: "हमारे टेलीग्राम से जुड़ें", favoritesTitle: "आपके पसंदीदा", noFavorites: "आपने अभी तक कोई पसंदीदा नहीं जोड़ा है!", noFavoritesSub: "किसी भी ऐप पर ♡ टैप करके इसे यहाँ सेव करें।", aboutItem: "इस ऐप के बारे में", requestUpdate: "अपडेट का अनुरोध करें", screenshots: "स्क्रीनशॉट", rateThisApp: "इस ऐप को रेट करें", yourName: "आपका नाम", writeReview: "एक समीक्षा लिखें...", postReview: "समीक्षा पोस्ट करें", noReviews: "अभी तक कोई समीक्षा नहीं। पहले बनें!", darkMode: "डार्क मोड", refreshCache: "कैश रिफ्रेश करें", clearAllData: "सभी डेटा साफ़ करें", soundClicks: "क्लिक कंपन", heartAnimation: "Floating Hearts", general: "सामान्य", data: "डेटा", latestApps: "नवीनतम ऐप्स", popularApps: "लोकप्रिय ऐप्स", category: "श्रेणी", favorite: "पसंदीदा", cancel: "रद्द करें", categories: "श्रेणियाँ", appNotFound: "ऐप नहीं मिला।", noResults: "कोई परिणाम नहीं मिला।", howToDownload: "कैसे डाउनलोड करें", viewOnPlayStore: "प्ले स्टोर पर देखें" },
-        id: { loading: "Memuat sentuhan ajaib...", homeTitle: "Halo, Cantik!", searchPlaceholder: "Cari sesuatu yang istimewa...", defaultCategory: "✨ Harus Punya", download: "Unduh", settingsTitle: "Pengaturan", langLabel: "Bahasa", aboutLabel: "Tentang Aplikasi:", aboutDesc: "Aplikasi ini dikembangkan untuk <strong>tujuan pendidikan saja</strong>.", joinTelegram: "Gabung Telegram kami", favoritesTitle: "Favorit Anda", noFavorites: "Anda belum menambahkan favorit!", noFavoritesSub: "Ketuk ♡ di aplikasi apa pun untuk menyimpannya di sini.", aboutItem: "Tentang Aplikasi Ini", requestUpdate: "Minta Pembaruan", screenshots: "Tangkapan Layar", rateThisApp: "Beri Nilai Aplikasi Ini", yourName: "Nama Anda", writeReview: "Tulis ulasan...", postReview: "Kirim Ulasan", noReviews: "Belum ada ulasan. Jadilah yang pertama!", darkMode: "Mode Gelap", refreshCache: "Segarkan Cache", clearAllData: "Hapus Semua Data", soundClicks: "Getaran Klik", heartAnimation: "Floating Hearts", general: "Umum", data: "Data", latestApps: "Aplikasi Terbaru", popularApps: "Aplikasi Populer", category: "Kategori", favorite: "Favorit", cancel: "Batal", categories: "Kategori", appNotFound: "Aplikasi tidak ditemukan.", noResults: "Tidak ada hasil ditemukan.", howToDownload: "Cara Mengunduh", viewOnPlayStore: "Lihat di Play Store" },
-        ar: { loading: "جاري تحميل لمسة من السحر...", homeTitle: "أهلاً بكِ!", searchPlaceholder: "ابحث عن شيء مميز...", defaultCategory: "✨ تطبيقات أساسية", download: "تحميل", settingsTitle: "الإعدادات", langLabel: "اللغة", aboutLabel: "عن التطبيق:", aboutDesc: "تم تطوير هذا التطبيق <strong>لأغراض تعليمية فقط</strong>.", joinTelegram: "انضم إلى تيليجرام", favoritesTitle: "مفضلاتك", noFavorites: "لم تقم بإضافة أي مفضلات بعد!", noFavoritesSub: "اضغط على ♡ في أي تطبيق لحفظه هنا.", aboutItem: "عن هذا التطبيق", requestUpdate: "طلب تحديث", screenshots: "لقطات الشاشة", rateThisApp: "قيّم هذا التطبيق", yourName: "اسمك", writeReview: "اكتب مراجعة...", postReview: "نشر المراجعة", noReviews: "لا توجد مراجعات حتى الآن. كن الأول!", darkMode: "الوضع الداكن", refreshCache: "تحديث الذاكرة المؤقتة", clearAllData: "مسح كل البيانات", soundClicks: "اهتزاز النقر", heartAnimation: "Floating Hearts", general: "عام", data: "البيانات", latestApps: "أحدث التطبيقات", popularApps: "التطبيقات الشائعة", category: "فئة", favorite: "المفضلة", cancel: "إلغاء", categories: "الفئات", appNotFound: "التطبيق غير موجود.", noResults: "لم يتم العثور على نتائج.", howToDownload: "كيفية التنزيل", viewOnPlayStore: "عرض في متجر Play" },
-        fr: { loading: "Chargement d'une touche de magie...", homeTitle: "Bonjour, Beauté !", searchPlaceholder: "Trouvez quelque chose de spécial...", defaultCategory: "✨ Incontournables", download: "Télécharger", settingsTitle: "Paramètres", langLabel: "Langue", aboutLabel: "À propos de l'app:", aboutDesc: "Cette application est développée à des <strong>fins éducatives uniquement</strong>.", joinTelegram: "Rejoignez notre Telegram", favoritesTitle: "Vos Favoris", noFavorites: "Vous n'avez ajouté aucun favori !", noFavoritesSub: "Appuyez sur le ♡ de n'importe quelle app pour l'enregistrer ici.", aboutItem: "À propos de cette App", requestUpdate: "Demander une mise à jour", screenshots: "Captures d'écran", rateThisApp: "Évaluer cette application", yourName: "Votre Nom", writeReview: "Écrire un avis...", postReview: "Publier l'avis", noReviews: "Aucun avis pour le moment. Soyez le premier !", darkMode: "Mode Sombre", refreshCache: "Rafraîchir le Cache", clearAllData: "Effacer toutes les données", soundClicks: "Vibration au clic", heartAnimation: "Floating Hearts", general: "Général", data: "Données", latestApps: "Dernières Apps", popularApps: "Apps Populaires", category: "Catégorie", favorite: "Favori", cancel: "Annuler", categories: "Catégories", appNotFound: "Application non trouvée.", noResults: "Aucun résultat trouvé.", howToDownload: "Comment télécharger", viewOnPlayStore: "Voir sur le Play Store" },
-        tr: { loading: "Bir tutam sihir yükleniyor...", homeTitle: "Merhaba, Güzel!", searchPlaceholder: "Özel bir şeyler bul...", defaultCategory: "✨ Olmazsa Olmazlar", download: "İndir", settingsTitle: "Ayarlar", langLabel: "Dil", aboutLabel: "Uygulama Hakkında:", aboutDesc: "Bu uygulama sadece <strong>eğitim amaçlı</strong> geliştirilmiştir.", joinTelegram: "Telegram'a katılın", favoritesTitle: "Favorileriniz", noFavorites: "Henüz favori eklemediniz!", noFavoritesSub: "Kaydetmek için herhangi bir uygulamadaki ♡ simgesine dokunun.", aboutItem: "Bu Uygulama Hakkında", requestUpdate: "Güncelleme İste", screenshots: "Ekran Görüntüleri", rateThisApp: "Bu Uygulamayı Değerlendir", yourName: "Adınız", writeReview: "Yorum yaz...", postReview: "Yorumu Gönder", noReviews: "Henüz yorum yok. İlk siz olun!", darkMode: "Karanlık Mod", refreshCache: "Önbelleği Yenile", clearAllData: "Tüm Verileri Temizle", soundClicks: "Tıklama Titreşimi", heartAnimation: "Floating Hearts", general: "Genel", data: "Veri", latestApps: "En Son Uygulamalar", popularApps: "Popüler Uygulamalar", category: "Kategori", favorite: "Favori", cancel: "İptal", categories: "Kategoriler", appNotFound: "Uygulama bulunamadı.", noResults: "Sonuç bulunamadı.", howToDownload: "Nasıl İndirilir", viewOnPlayStore: "Play Store'da Görüntüle" },
-        es: { loading: "Cargando un toque de magia...", homeTitle: "¡Hola, Belleza!", searchPlaceholder: "Encuentra algo especial...", defaultCategory: "✨ Imprescindibles", download: "Descargar", settingsTitle: "Ajustes", langLabel: "Idioma", aboutLabel: "Acerca de la App:", aboutDesc: "Esta aplicación se ha desarrollado <strong>únicamente con fines educativos</strong>.", joinTelegram: "Únete a nuestro Telegram", favoritesTitle: "Tus Favoritos", noFavorites: "¡Aún no has añadido ningún favorito!", noFavoritesSub: "Toca el ♡ en cualquier app para guardarla aquí.", aboutItem: "Acerca de esta App", requestUpdate: "Solicitar Actualización", screenshots: "Capturas de pantalla", rateThisApp: "Valora esta App", yourName: "Tu Nombre", writeReview: "Escribe una reseña...", postReview: "Publicar Reseña", noReviews: "Aún no hay reseñas. ¡Sé el primero!", darkMode: "Modo Oscuro", refreshCache: "Refrescar Caché", clearAllData: "Borrar todos los datos", soundClicks: "Vibración al clicar", heartAnimation: "Floating Hearts", general: "General", data: "Datos", latestApps: "Últimas Apps", popularApps: "Apps Populares", category: "Categoría", favorite: "Favorito", cancel: "Cancelar", categories: "Categorías", appNotFound: "Aplicación no encontrada.", noResults: "No se encontraron resultados.", howToDownload: "Cómo Descargar", viewOnPlayStore: "Ver en Play Store" },
-        pt: { loading: "Carregando um toque de magia...", homeTitle: "Olá, Lindeza!", searchPlaceholder: "Encontre algo especial...", defaultCategory: "✨ Essenciais", download: "Baixar", settingsTitle: "Configurações", langLabel: "Idioma", aboutLabel: "Sobre o App:", aboutDesc: "Este aplicativo foi desenvolvido <strong>apenas para fins educacionais</strong>.", joinTelegram: "Entre no nosso Telegram", favoritesTitle: "Seus Favoritos", noFavorites: "Você ainda não adicionou nenhum favorito!", noFavoritesSub: "Toque no ♡ em qualquer app para salvá-lo aqui.", aboutItem: "Sobre este App", requestUpdate: "Pedir Atualização", screenshots: "Capturas de tela", rateThisApp: "Avalie este App", yourName: "Seu Nome", writeReview: "Escreva um comentário...", postReview: "Publicar Comentário", noReviews: "Nenhum comentário ainda. Seja o primeiro!", darkMode: "Modo Escuro", refreshCache: "Atualizar Cache", clearAllData: "Limpar Todos os Dados", soundClicks: "Vibração ao Clicar", heartAnimation: "Floating Hearts", general: "Geral", data: "Dados", latestApps: "Apps Recentes", popularApps: "Apps Populares", category: "Categoria", favorite: "Favorito", cancel: "Cancelar", categories: "Categorias", appNotFound: "Aplicativo não encontrado.", noResults: "Nenhum resultado encontrado.", howToDownload: "Como Baixar", viewOnPlayStore: "Ver na Play Store" }
+        en: { loading: "Loading a touch of magic...", homeTitle: "Hello, Beautiful!", searchPlaceholder: "Find something special...", defaultCategory: "✨ Must-Haves", download: "Download", settingsTitle: "Settings", langLabel: "Language", aboutLabel: "About App:", aboutDesc: "This application is developed for <strong>educational purposes only</strong>.", joinTelegram: "Join our Telegram", favoritesTitle: "Your Favorites", noFavorites: "You haven't added any favorites yet!", noFavoritesSub: "Tap the ♡ on any app to save it here.", aboutItem: "About this App", requestUpdate: "Request Update", screenshots: "Screenshots", rateThisApp: "Rate this App", yourName: "Your Name", writeReview: "Write a review...", postReview: "Post Review", noReviews: "No reviews yet. Be the first!", darkMode: "Dark Mode", refreshCache: "Refresh Cache", clearAllData: "Clear All Data", soundClicks: "Click Vibration", heartAnimation: "Floating Hearts", general: "General", data: "Data", latestApps: "Latest Apps", popularApps: "Popular Apps", category: "Category", favorite: "Favorite", cancel: "Cancel", categories: "Categories", appNotFound: "App not found.", noResults: "No results found.", howToDownload: "How to Download", viewOnPlayStore: "View on Play Store", viewOnPlayStoreBtn: "View on Play Store" },
+        bn: { loading: "একটু অপেক্ষা করুন...", homeTitle: "স্বাগতম!", searchPlaceholder: "কিছু খুঁজুন...", defaultCategory: "✨ প্রয়োজনীয়", download: "ডাউনলোড", settingsTitle: "সেটিংস", langLabel: "ভাষা", aboutLabel: "অ্যাপ সম্পর্কে:", aboutDesc: "এই অ্যাপ্লিকেশনটি শুধুমাত্র <strong>শিক্ষামূলক উদ্দেশ্যে</strong> তৈরি করা হয়েছে।", joinTelegram: "টেলিগ্রামে যোগ দিন", favoritesTitle: "আপনার পছন্দের তালিকা", noFavorites: "আপনি এখনো পছন্দের কিছু যোগ করেননি!", noFavoritesSub: "যেকোনো অ্যাপে ♡ ট্যাপ করে এখানে সেভ করুন।", aboutItem: "এই অ্যাপ সম্পর্কে", requestUpdate: "আপডেটের জন্য অনুরোধ", screenshots: "স্ক্রিনশট", rateThisApp: "অ্যাপটি রেট দিন", yourName: "আপনার নাম", writeReview: "রিভিউ লিখুন...", postReview: "রিভিউ পোস্ট করুন", noReviews: "এখনো কোনো রিভিউ নেই। প্রথম রিভিউটি আপনি দিন!", darkMode: "ডার্ক মোড", refreshCache: "ক্যাশে রিফ্রেশ করুন", clearAllData: "সমস্ত ডেটা মুছুন", soundClicks: "ক্লিক ভাইব্রেশন", heartAnimation: "ফ্লোটিং হার্ট", general: "সাধারণ", data: "ডেটা", latestApps: "সর্বশেষ অ্যাপস", popularApps: "জনপ্রিয় অ্যাপস", category: "ক্যাটাগরি", favorite: "পছন্দের", cancel: "বাতিল", categories: "ক্যাটাগরি সমূহ", appNotFound: "অ্যাপ খুঁজে পাওয়া যায়নি।", noResults: "কোনো ফলাফল পাওয়া যায়নি।", howToDownload: "কিভাবে ডাউনলোড করবেন", viewOnPlayStore: "প্লে স্টোরে দেখুন", viewOnPlayStoreBtn: "প্লে স্টোরে দেখুন" }
     };
     
     Object.keys(allLanguages).forEach(langCode => { if (!translations[langCode]) { translations[langCode] = translations.en; } const langObject = translations[langCode]; for (const key in translations.en) { if (!langObject[key]) { langObject[key] = translations.en[key]; } }});
@@ -361,14 +410,13 @@
         const card = document.createElement('div');
         card.className = 'app-card ripple';
         card.dataset.id = app.id;
-        // Updated to show Version and Size
         const rating = app.averageRating ? app.averageRating.toFixed(1) : (app.rating || 0);
         card.innerHTML = `<img class="app-card-icon" src="${app.img}" loading="lazy" onerror="this.src='https://i.ibb.co/68Z2pL4/placeholder.png';"><h4 class="app-name">${app.name}</h4><div class="app-meta">${rating} ★ | v${app.version || 'N/A'} | ${app.size || ''}</div>`;
         return card;
     }
 
     function updateAppGrid(apps) {
-        DOMElements.home.appGrid.innerHTML = ''; // Clear previous content efficiently
+        DOMElements.home.appGrid.innerHTML = ''; 
         const fragment = document.createDocumentFragment();
         apps.forEach(app => fragment.appendChild(createAppCardNode(app)));
         DOMElements.home.appGrid.appendChild(fragment);
@@ -388,7 +436,6 @@
     }
 
     function renderHomePage() {
-        // Checking for isPremium or isHot (Premium Apps Free uses isHot)
         const popularApps = state.apps.filter(app => app.isPremium === true || app.isHot === true);
         DOMElements.home.popularCarousel.innerHTML = (popularApps.length > 0 && state.currentFilter === 'home')
             ? `<h2 class="section-title">${t('popularApps')}</h2><div class="popular-carousel">${popularApps.map(createPopularCardHTML).join('')}</div>`
@@ -407,7 +454,6 @@
         updatePagination(filteredApps.length);
     }
     
-    // This is now only generated once on initial load.
     function preRenderSettingsPage() {
         const settingsHTML = `
             <header class="settings-header"><h1 class="welcome-title">${t('settingsTitle')}</h1></header>
@@ -430,22 +476,18 @@
 
     function renderDetailPage(itemId) {
         const page = DOMElements.pages.details;
-        // FIX 1: Ensure loose equality check or string comparison to avoid "App not found" due to type mismatch (number vs string)
         const item = state.apps.find(a => String(a.id) === String(itemId));
         if (!item) { page.innerHTML = `<p>${t('appNotFound')}</p>`; return; }
 
         const reviews = Array.isArray(item.reviews) ? item.reviews : [];
         const avgRating = reviews.length > 0 ? (reviews.reduce((s, r) => s + Number(r.rating), 0) / reviews.length).toFixed(1) : (item.averageRating || item.rating || 0);
         
-        // FIX 2: Restore Hypermod Bullet Feature Logic (Checkmarks) for array data
-        // Check both 'desc' and 'description' fields and ensure it handles arrays correctly
         let descListHTML = '';
         const rawDesc = item.desc || item.description;
 
         if (Array.isArray(rawDesc)) {
             descListHTML = rawDesc.map(d => `<li><span class="material-icons-round">check_circle</span><span>${d}</span></li>`).join('');
         } else if (typeof rawDesc === 'string') {
-             // Handle if description is a simple string, show as one item or split by newlines if preferred
              descListHTML = `<li><span class="material-icons-round">info</span><span>${rawDesc}</span></li>`;
         } else {
              descListHTML = `<li><span class="material-icons-round">info</span><span>No description available.</span></li>`;
@@ -454,23 +496,51 @@
         const screenshotHTML = (item.screenshots && item.screenshots.length > 0) ? `<div class="detail-section-content"><h4 class="subtitle">${t('screenshots')}</h4><div class="screenshot-gallery">${item.screenshots.map((ss, i) => `<img src="${ss}" class="screenshot-img" data-index="${i}" loading="lazy">`).join('')}</div></div>` : '';
         const isFav = state.favorites.includes(item.id);
         
-        // FIX 3: Premium Apps Free Style Play Store Button (Image)
-        // Using an image instead of text for the Play Store link
-        const playStoreButtonHTML = item.playStoreLink ? `<a href="${item.playStoreLink}" target="_blank" class="btn btn-secondary ripple" style="padding: 0; background: none; border: none; box-shadow: none;"><img src="https://i.postimg.cc/Wbw73V2y/Picsart-25-07-13-10-48-29-353.png" style="height: 48px; width: auto; display: block;" alt="Get it on Google Play"></a>` : '';
+        // --- UPDATED PLAY STORE BUTTON WITH WEBP IMAGE & ANIMATION ---
+        const playStoreButtonHTML = item.playStoreLink ? `
+            <a href="${item.playStoreLink}" target="_blank" class="btn btn-secondary ripple" style="background-color: #e8f5e9; color: #2e7d32;">
+                <img src="https://i.ibb.co/MkpD3Bqq/5d0b0403257ac6cde82fa20c08ec83bea1d4b6ccd406fefdb1672717881c1a7a-200.webp" class="blink-live" style="width: 24px; height: 24px; object-fit: contain;" alt="Play Store">
+                <span>${t('viewOnPlayStoreBtn')}</span>
+            </a>` : '';
         
         page.innerHTML = `
             <div>
                 <div class="detail-header"><button class="btn-back ripple" data-action="goBack"><span class="material-icons-round">arrow_back</span></button><h2 class="detail-title">${item.name}</h2></div>
                 <div style="padding: 0 16px;">
                     <div class="detail-card"><img id="detailAppImage" src="${item.img}" onerror="this.src='https://i.ibb.co/68Z2pL4/placeholder.png';"><div class="detail-info"><h3 id="detailAppName">${item.name}</h3><p id="detailAppCategory">${item.category} • v${item.version || 'N/A'} • ${item.size || ''}</p><div id="detailStarRating"><span class="stars">${'★'.repeat(Math.round(avgRating))}${'☆'.repeat(5 - Math.round(avgRating))}</span>&nbsp;(${avgRating})</div></div></div>
+                    
                     <div class="detail-actions">
-                        <a href="${item.link}" target="_blank" class="btn btn-primary ripple"><span class="material-icons-round">download</span><span>${t('download')}</span></a>
-                        <a href="https://player.vimeo.com/video/1080856907" target="_blank" class="btn btn-secondary ripple"><span class="material-icons-round">play_circle_outline</span><span>${t('howToDownload')}</span></a>
+                        <!-- TOP DOWNLOAD BUTTON WITH BLINKING ICON -->
+                        <a href="${item.link}" target="_blank" class="btn btn-primary ripple">
+                            <span class="material-icons-round blink-live">download</span>
+                            <span>${t('download')}</span>
+                        </a>
+                        
+                        <!-- HOW TO DOWNLOAD BUTTON WITH BLINKING ICON -->
+                        <a href="https://player.vimeo.com/video/1080856907" target="_blank" class="btn btn-secondary ripple">
+                            <span class="material-icons-round blink-live">play_circle_outline</span>
+                            <span>${t('howToDownload')}</span>
+                        </a>
+                        
                         ${playStoreButtonHTML}
+
                         <button id="favBtn" class="btn btn-secondary ripple" data-action="toggleFavorite" data-id="${item.id}"><span class="material-icons-round">${isFav ? 'favorite' : 'favorite_border'}</span><span>${t('favorite')}</span></button>
                         <a href="https://t.me/HyperMod_1" target="_blank" class="btn btn-secondary ripple"><span class="material-icons-round">sync</span><span>${t('requestUpdate')}</span></a>
                     </div>
-                    <div class="detail-section-content"><h4 class="subtitle">${t('aboutItem')}</h4><div id="detailAppDescContainer"><ul>${descListHTML}</ul></div></div>
+
+                    <!-- NEW RATING SECTION -->
+                    <div class="user-rating-section">
+                         <h4 class="subtitle" style="margin-bottom:0; font-size:1.2rem;">${t('rateThisApp')}</h4>
+                         <div class="rating-stars">
+                             <span class="material-icons-round rating-star-btn ripple" data-action="rateApp" data-score="1" data-id="${item.id}">star_border</span>
+                             <span class="material-icons-round rating-star-btn ripple" data-action="rateApp" data-score="2" data-id="${item.id}">star_border</span>
+                             <span class="material-icons-round rating-star-btn ripple" data-action="rateApp" data-score="3" data-id="${item.id}">star_border</span>
+                             <span class="material-icons-round rating-star-btn ripple" data-action="rateApp" data-score="4" data-id="${item.id}">star_border</span>
+                             <span class="material-icons-round rating-star-btn ripple" data-action="rateApp" data-score="5" data-id="${item.id}">star_border</span>
+                         </div>
+                    </div>
+
+                    <div class="detail-section-content" style="margin-top:25px;"><h4 class="subtitle">${t('aboutItem')}</h4><div id="detailAppDescContainer"><ul>${descListHTML}</ul></div></div>
                     ${screenshotHTML}
                 </div>
             </div>`;
@@ -492,7 +562,6 @@
         DOMElements.header.classList.toggle('hidden', !showHeader);
         DOMElements.bottomNav.classList.remove('hidden');
 
-        // Update header title based on page
         if (pageName === 'home') DOMElements.welcomeTitle.textContent = t('homeTitle');
         if (pageName === 'favorites') DOMElements.welcomeTitle.textContent = t('favoritesTitle');
         if (pageName === 'settings') DOMElements.welcomeTitle.textContent = t('settingsTitle');
@@ -567,7 +636,7 @@
         },
         toggleHeartAnimation: (isChecked) => {
             localStorage.setItem('heartAnimation', isChecked);
-            location.reload(); // Reload to apply the change
+            location.reload(); 
         },
         clearCache: () => {
             localStorage.removeItem('apps_cache');
@@ -594,6 +663,38 @@
             state.activeLang = lang;
             localStorage.setItem('language', lang);
             location.reload();
+        },
+        // NEW: ACTION TO RATE APP
+        rateApp: (id) => {
+            const target = event.target;
+            const score = parseInt(target.dataset.score);
+            
+            // Visual Update
+            const stars = target.parentElement.children;
+            for(let i=0; i<stars.length; i++) {
+                if (i < score) {
+                    stars[i].innerText = 'star';
+                    stars[i].classList.add('selected');
+                } else {
+                    stars[i].innerText = 'star_border';
+                    stars[i].classList.remove('selected');
+                }
+            }
+
+            // Database Update
+            // NOTE: This pushes a new rating. In a real app, you might want to average it server-side or restrict one per user.
+            const newReview = { rating: score, timestamp: Date.now() };
+            
+            // Assuming database structure: apps/{id}/reviews
+            db.ref('apps/' + id + '/reviews').push(newReview).then(() => {
+                // Optional: Show a small toast saying "Thanks!"
+                const toast = document.getElementById('notificationToast');
+                const notifMsg = document.getElementById('notifMessage');
+                notifMsg.textContent = "Thanks for your rating!";
+                document.getElementById('notifImage').src = 'https://cdn-icons-png.flaticon.com/512/1828/1828884.png';
+                toast.classList.add('active');
+                setTimeout(() => toast.classList.remove('active'), 3000);
+            }).catch(e => console.error("Rating error", e));
         }
     };
     // --- END: UI INTERACTIONS & ACTIONS ---
@@ -669,6 +770,10 @@
             if(actionTarget) {
                 const action = actionTarget.dataset.action;
                 const id = actionTarget.dataset.id;
+                // For rateApp, we need to pass the element implicitly or handle differently? 
+                // Currently generic handler calls actions[action](id).
+                // Our rateApp action reads from event.target, so we need to make sure `event` is available or passed.
+                // The generic handler:
                 if (actions[action]) actions[action](id);
                 return;
             }
@@ -720,6 +825,85 @@
         }
     }
 
+    // --- START: REALTIME NOTIFICATION SYSTEM (UPDATED WITH VIBRATION) ---
+    function setupRealtimeListener() {
+        if ("Notification" in window) {
+            Notification.requestPermission();
+        }
+
+        let firstLoad = true;
+        const initialTimestamp = Date.now();
+
+        // Listen for new children added to the 'apps' node
+        db.ref('apps').limitToLast(1).on('child_added', (snapshot) => {
+            const appData = snapshot.val();
+            const appId = snapshot.key;
+            const app = { id: appId, ...appData };
+            
+            const appTime = app.addedTimestamp || app.timestamp || 0;
+
+            // Trigger only if it's NOT the first load and the app is actually new (time check)
+            if (!firstLoad && appTime > initialTimestamp) {
+                showInAppNotification(app);
+            }
+            firstLoad = false;
+        });
+    }
+
+    function showInAppNotification(app) {
+        // --- NEW: VIBRATION ADDED HERE ---
+        // Vibrate pattern: 500ms vibrate, 200ms pause, 500ms vibrate
+        if (navigator.vibrate) {
+            try {
+                navigator.vibrate([500, 200, 500]);
+            } catch (e) {
+                console.log("Vibration failed: " + e);
+            }
+        }
+
+        // 1. Play Sound
+        const audio = document.getElementById('notifSound');
+        if (audio) {
+            audio.volume = 0.5;
+            audio.play().catch(e => console.log("Audio permission needed"));
+        }
+
+        // 2. Native Browser Notification
+        if (Notification.permission === "granted") {
+            try {
+                new Notification(`New App: ${app.name}`, {
+                    body: "Tap to check it out now!",
+                    icon: app.img,
+                    vibrate: [500, 200, 500]
+                });
+            } catch (e) { console.log("Native notification failed", e); }
+        }
+
+        // 3. In-App Toast
+        const toast = document.getElementById('notificationToast');
+        const notifImg = document.getElementById('notifImage');
+        const notifMsg = document.getElementById('notifMessage');
+
+        notifImg.src = app.img || 'https://i.ibb.co/68Z2pL4/placeholder.png';
+        notifMsg.textContent = `${app.name} is now available!`;
+        
+        toast.onclick = () => {
+            toast.classList.remove('active');
+            // Refresh app list and navigate
+            fetchApps().then(() => {
+                showItemDetail(app.id);
+            });
+        };
+
+        toast.classList.add('active');
+
+        // Hide after 5 seconds
+        setTimeout(() => {
+            toast.classList.remove('active');
+        }, 5000);
+    }
+    // --- END: REALTIME NOTIFICATION SYSTEM ---
+
     async function initialLoad() {
         // Basic setup
         DOMElements.home.pageTitle.textContent = t('loading');
@@ -734,6 +918,9 @@
 
         // Pre-render static pages to avoid lag later
         preRenderSettingsPage();
+
+        // ACTIVATE REALTIME LISTENER
+        setupRealtimeListener();
 
         // Caching strategy
         const cachedApps = JSON.parse(localStorage.getItem('apps_cache'));
@@ -792,7 +979,7 @@
                 heart.style.left = `${Math.random()*100}%`; 
                 heart.style.animationDuration = `${Math.random()*5+8}s`;
             }
-        }, 800); // Reduced frequency for better performance
+        }, 800); 
     }
     
     // --- START APP ---
@@ -803,7 +990,7 @@
         initialLoad();
         setupHeartAnimation();
     });
-    // Placeholder functions from original code
+    
     function createPopularCardHTML(app) {
         return `<div class="popular-card-item" data-id="${app.id}"><div class="popular-card-base"><div class="popular-app-logo-wrapper"><img src="${app.img}" class="popular-app-logo" onerror="this.src='https.i.ibb.co/68Z2pL4/placeholder.png';"></div></div><h3 class="popular-card-app-name">${app.name}</h3></div>`;
     }
