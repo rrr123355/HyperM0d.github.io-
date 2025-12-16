@@ -2,10 +2,27 @@
 <html lang="en" class="light">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- হাইট এবং জুম ফিক্স করা হয়েছে -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>BloomMail - Temporary Email</title>
     
+    <!-- Tailwind CSS Script -->
     <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- IMPORTANT: Tailwind Config to fix Dark/Light Mode Glitch -->
+    <script>
+        tailwind.config = {
+            darkMode: 'class', // এই লাইনটি আপনার সমস্যার সমাধান করবে
+            theme: {
+                extend: {
+                    colors: {
+                        gray: { 900: '#111827', 100: '#f3f4f6' }
+                    }
+                }
+            }
+        }
+    </script>
+
     <!-- Razorpay SDK -->
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
@@ -19,8 +36,11 @@
             font-family: 'Space Grotesk', sans-serif;
             background-size: 200% 200%;
             animation: background-pan 30s linear infinite alternate;
+            -webkit-user-select: none; /* মোবাইলে টেক্সট সিলেকশন বন্ধ করার জন্য */
+            user-select: none;
         }
 
+        /* Scrollbar hide */
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         
@@ -28,13 +48,10 @@
         
         /* Toast Animations */
         @keyframes toastIn { from { transform: translateY(100%) scale(0.9); opacity: 0; } to { transform: translateY(0) scale(1); opacity: 1; } }
-        @keyframes toastOut { from { transform: translateY(0) scale(1); opacity: 1; } to { transform: translateY(100%) scale(0.9); opacity: 0; } }
         .toast-in { animation: toastIn 0.3s ease-out forwards; }
-        .toast-out { animation: toastOut 0.3s ease-in forwards; }
 
         @keyframes spin { to { transform: rotate(360deg); } }
         .spinner { display: inline-block; width: 1.25rem; height: 1.25rem; border: 2px solid rgba(255, 255, 255, 0.3); border-radius: 50%; border-top-color: white; animation: spin 1s ease-in-out infinite; }
-        .dark .spinner { border: 2px solid rgba(0,0,0,0.3); border-top-color: black; }
 
         @keyframes background-pan { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
 
@@ -43,11 +60,20 @@
         .dark .glam-border-glow { border-color: theme('colors.purple.600'); animation: glam-glow-dark 5s ease-in-out infinite alternate; }
         @keyframes glam-glow-dark { 0%, 100% { box-shadow: 0 0 12px rgba(218, 112, 214, 0.7); } 50% { box-shadow: 0 0 18px rgba(255, 0, 255, 0.9); } }
 
+        /* Glassmorphism Fixes */
         .glassmorphism-card {
-            background-color: rgba(255, 255, 255, 0.7); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); 
-            border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 1.5rem; box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1); transition: all 0.5s ease;
+            background-color: rgba(255, 255, 255, 0.85); /* Light mode opacity increased for better visibility */
+            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); 
+            border: 1px solid rgba(255, 255, 255, 0.5); 
+            border-radius: 1.5rem; 
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1); 
+            transition: all 0.5s ease;
         }
-        .dark .glassmorphism-card { background-color: rgba(30, 41, 59, 0.7); border: 1px solid rgba(71, 85, 105, 0.4); box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2); }
+        .dark .glassmorphism-card { 
+            background-color: rgba(15, 23, 42, 0.85); /* Darker background for dark mode */
+            border: 1px solid rgba(71, 85, 105, 0.4); 
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4); 
+        }
         
         @keyframes shine { 0% { background-position: -100% 50%; } 100% { background-position: 200% 50%; } }
         .gold-text { background: linear-gradient(to right, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c); background-size: 200% auto; color: transparent; -webkit-background-clip: text; background-clip: text; animation: shine 3s linear infinite; }
@@ -56,190 +82,159 @@
         .premium-badge { background: linear-gradient(135deg, #FFD700, #FFA500); color: black; font-weight: bold; padding: 2px 8px; border-radius: 8px; font-size: 0.7rem; margin-left: 5px; vertical-align: top; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
     </style>
 </head>
-<body class="bg-gradient-to-br from-rose-100 via-purple-100 to-indigo-100 dark:from-slate-900 dark:via-indigo-950 dark:to-purple-950 text-gray-900 dark:text-gray-100 antialiased transition-colors duration-300">
+<body class="bg-gradient-to-br from-rose-50 via-purple-50 to-indigo-50 dark:from-slate-900 dark:via-indigo-950 dark:to-purple-950 text-gray-900 dark:text-gray-100 antialiased transition-colors duration-300 h-[100dvh] overflow-hidden">
 
-    <div id="app-container" class="max-w-md mx-auto h-screen flex flex-col rounded-3xl overflow-hidden my-6 shadow-2xl glassmorphism-card">
+    <!-- Container Height fixed to 100dvh for mobile -->
+    <div id="app-container" class="max-w-md mx-auto h-full flex flex-col md:rounded-3xl md:my-6 md:h-[95vh] shadow-2xl glassmorphism-card overflow-hidden">
         
         <!-- HOME SCREEN -->
-        <div id="home-screen" class="flex flex-col h-full">
-            <header class="flex items-center justify-between p-4 md:p-5 border-b border-gray-100 dark:border-slate-700 sticky top-0 bg-white/70 dark:bg-slate-800/70 backdrop-blur-md z-10 shadow-sm">
-                <button id="premium-btn" class="p-2 rounded-full bg-gradient-to-tr from-yellow-400 to-orange-500 text-white shadow-lg hover:scale-110 active:scale-95 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-yellow-400">
+        <div id="home-screen" class="flex flex-col h-full relative">
+            
+            <!-- HEADER -->
+            <header class="flex items-center justify-between p-4 pt-8 md:pt-4 border-b border-gray-200 dark:border-slate-700 bg-white/60 dark:bg-slate-900/60 backdrop-blur-md z-10 sticky top-0 transition-colors duration-300">
+                <button id="premium-btn" class="p-2 rounded-full bg-gradient-to-tr from-yellow-400 to-orange-500 text-white shadow-lg hover:scale-110 active:scale-95 transition-all duration-300">
                     <span class="material-symbols-outlined text-xl">diamond</span>
                 </button>
-                <h1 id="app-title" class="text-3xl font-bold bg-gradient-to-r from-rose-500 to-purple-600 dark:from-pink-300 dark:to-purple-400 text-transparent bg-clip-text text-center tracking-tight">BloomMail</h1>
-                <button id="theme-toggle-btn" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500/50">
-                    <span id="theme-icon" class="material-symbols-outlined text-xl text-gray-600 dark:text-gray-300">light_mode</span>
+                <h1 id="app-title" class="text-2xl font-bold bg-gradient-to-r from-rose-500 to-purple-600 dark:from-pink-300 dark:to-purple-400 text-transparent bg-clip-text text-center tracking-tight">BloomMail</h1>
+                <button id="theme-toggle-btn" class="p-2 rounded-full bg-white/50 dark:bg-slate-700/50 hover:bg-gray-100 dark:hover:bg-slate-600 transition-colors shadow-sm">
+                    <span id="theme-icon" class="material-symbols-outlined text-xl text-orange-500 dark:text-yellow-300">light_mode</span>
                 </button>
             </header>
 
-            <main class="p-6 md:p-8 space-y-8 flex-grow overflow-y-auto no-scrollbar">
-                <div class="bg-gradient-to-br from-pink-50 to-purple-100 dark:from-slate-700 dark:to-slate-700 p-6 rounded-2xl shadow-lg glam-border-glow">
-                    <p class="text-sm text-gray-600 dark:text-gray-400 mb-3 font-medium tracking-wide">Your temporary email address</p>
-                    <div class="flex items-center justify-between gap-3">
-                        <span id="email-address" class="font-mono text-base md:text-lg font-bold tracking-wide text-purple-700 dark:text-pink-300">loading...</span>
-                        <button id="copy-btn" class="flex-shrink-0 p-3 md:p-3.5 rounded-full bg-pink-200 dark:bg-purple-800 hover:bg-pink-300 dark:hover:bg-purple-700 text-purple-700 dark:text-pink-200 transition-all hover:scale-105 active:scale-95 shadow-md focus:outline-none focus:ring-2 focus:ring-pink-500/50">
-                            <span class="material-symbols-outlined text-xl md:text-2xl">content_copy</span>
+            <main class="p-5 space-y-6 flex-grow overflow-y-auto no-scrollbar pb-20">
+                <!-- Email Display Card -->
+                <div class="bg-white/80 dark:bg-slate-800/80 p-6 rounded-2xl shadow-lg glam-border-glow backdrop-blur-sm">
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mb-2 font-medium tracking-wide text-center">Your temporary email</p>
+                    <div class="flex items-center justify-between gap-2 bg-gray-50 dark:bg-slate-900/50 p-3 rounded-xl border border-gray-100 dark:border-slate-700">
+                        <span id="email-address" class="font-mono text-sm sm:text-base font-bold text-gray-700 dark:text-gray-200 truncate select-all">loading...</span>
+                        <button id="copy-btn" class="flex-shrink-0 p-2.5 rounded-lg bg-purple-100 dark:bg-purple-900/50 text-purple-600 dark:text-purple-300 hover:bg-purple-200 dark:hover:bg-purple-800 transition-all active:scale-90">
+                            <span class="material-symbols-outlined text-xl">content_copy</span>
                         </button>
                     </div>
                 </div>
                 
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-5">
-                    <button id="change-mail-btn" class="flex items-center justify-center gap-2 w-full bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white font-semibold py-3 md:py-3.5 px-4 rounded-xl shadow-lg transition-all duration-300 transform hover:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-purple-500/50">
-                        <span class="material-symbols-outlined">change_circle</span> Change Mail
+                <!-- Action Buttons -->
+                <div class="grid grid-cols-2 gap-4">
+                    <button id="change-mail-btn" class="flex flex-col items-center justify-center gap-1 bg-gradient-to-br from-indigo-500 to-purple-600 text-white py-4 rounded-2xl shadow-lg active:scale-95 transition-transform">
+                        <span class="material-symbols-outlined text-2xl">change_circle</span> 
+                        <span class="text-sm font-bold">Change</span>
                     </button>
-                    <button id="delete-mail-btn" class="flex items-center justify-center gap-2 w-full bg-gradient-to-r from-rose-500 to-red-600 hover:from-rose-600 hover:to-red-700 text-white font-semibold py-3 md:py-3.5 px-4 rounded-xl shadow-lg transition-all duration-300 transform hover:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-red-500/50">
-                        <span class="material-symbols-outlined">delete</span> Delete Mail
+                    <button id="delete-mail-btn" class="flex flex-col items-center justify-center gap-1 bg-gradient-to-br from-rose-500 to-red-600 text-white py-4 rounded-2xl shadow-lg active:scale-95 transition-transform">
+                        <span class="material-symbols-outlined text-2xl">delete</span> 
+                        <span class="text-sm font-bold">Delete</span>
                     </button>
                 </div>
 
-                <div class="glassmorphism-card p-5 md:p-6 shadow-xl">
-                    <div class="flex items-center justify-between mb-5 flex-wrap gap-y-3">
-                        <h2 class="text-xl md:text-2xl font-bold text-gray-800 dark:text-gray-100">Inbox</h2>
-                        <div class="flex items-center gap-3 bg-pink-50 dark:bg-purple-800 rounded-full p-2 shadow-inner border border-pink-100 dark:border-purple-700">
-                            <div class="flex items-center gap-2 bg-gradient-to-r from-purple-500 to-pink-500 dark:from-purple-600 dark:to-pink-600 text-white px-3 md:px-4 py-1.5 rounded-full shadow-md">
-                                <span class="material-symbols-outlined text-base md:text-lg">timer</span>
-                                <span id="timer-display" class="text-sm md:text-base font-bold">10:00</span>
+                <!-- Inbox Area -->
+                <div class="bg-white/60 dark:bg-slate-800/40 rounded-2xl p-5 shadow-sm border border-white/50 dark:border-slate-700/50 min-h-[300px]">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-lg font-bold text-gray-800 dark:text-white">Inbox</h2>
+                        <div class="flex items-center gap-2">
+                            <div class="flex items-center gap-1 bg-gray-100 dark:bg-slate-700 px-3 py-1 rounded-full text-xs font-bold text-gray-600 dark:text-gray-300">
+                                <span class="material-symbols-outlined text-sm">timer</span>
+                                <span id="timer-display">10:00</span>
                             </div>
-                            <button id="extend-timer-btn" class="p-2 md:p-2.5 rounded-full bg-green-500 hover:bg-green-600 text-white shadow-md transition-transform transform hover:scale-105 active:scale-95 text-xs md:text-sm font-semibold">
-                                <span class="material-symbols-outlined text-lg">add_alarm</span>
+                            <button id="extend-timer-btn" class="p-1.5 rounded-full bg-green-100 text-green-600 hover:bg-green-200 dark:bg-green-900/30 dark:text-green-400">
+                                <span class="material-symbols-outlined text-lg">add</span>
                             </button>
-                            <button id="refresh-btn" class="p-2 md:p-2.5 rounded-full hover:bg-pink-100 dark:hover:bg-purple-700 transition-colors hover:scale-105 active:scale-95 shadow-sm">
-                                <span class="material-symbols-outlined text-xl text-gray-600 dark:text-gray-300">refresh</span>
+                            <button id="refresh-btn" class="p-1.5 rounded-full bg-blue-100 text-blue-600 hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-400">
+                                <span class="material-symbols-outlined text-lg">refresh</span>
                             </button>
                         </div>
                     </div>
-                    <div id="empty-inbox" class="text-center py-12 px-4">
-                        <span class="material-symbols-outlined text-8xl text-purple-300 dark:text-pink-400 hourglass-flow-animation">hourglass_empty</span>
-                        <p class="mt-4 text-gray-600 dark:text-gray-300 font-medium text-xl">Inbox is empty...</p>
+
+                    <div id="empty-inbox" class="flex flex-col items-center justify-center py-10 opacity-70">
+                        <span class="material-symbols-outlined text-6xl text-purple-300 dark:text-slate-600 mb-2">inbox</span>
+                        <p class="text-gray-500 dark:text-gray-400 font-medium text-sm">Waiting for emails...</p>
                     </div>
-                    <div id="inbox-list" class="space-y-3"></div>
+                    <div id="inbox-list" class="space-y-3 pb-4"></div>
                 </div>
             </main>
         </div>
 
         <!-- PREMIUM SCREEN -->
-        <div id="premium-screen" class="hidden flex-col h-full bg-white dark:bg-slate-900">
-            <header class="flex items-center p-4 md:p-5 border-b border-gray-100 dark:border-slate-700 sticky top-0 bg-white/70 dark:bg-slate-800/70 backdrop-blur-md z-10 shadow-sm">
-                <button id="back-from-premium-btn" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors hover:scale-105 active:scale-95 shadow-sm">
-                    <span class="material-symbols-outlined text-xl text-gray-600 dark:text-gray-300">arrow_back</span>
+        <div id="premium-screen" class="hidden flex-col h-full bg-white dark:bg-slate-900 z-20 absolute inset-0">
+            <header class="flex items-center p-4 border-b border-gray-100 dark:border-slate-800">
+                <button id="back-from-premium-btn" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors">
+                    <span class="material-symbols-outlined text-gray-800 dark:text-white">arrow_back</span>
                 </button>
-                <h2 class="text-xl md:text-2xl font-bold text-center flex-grow text-gray-800 dark:text-gray-100">Premium</h2>
-                <div class="w-10"></div>
+                <h2 class="text-xl font-bold ml-4 text-gray-800 dark:text-white">Premium</h2>
             </header>
 
             <main class="p-6 flex-grow overflow-y-auto no-scrollbar flex flex-col items-center">
-                <div class="w-20 h-20 bg-gradient-to-br from-yellow-300 to-orange-500 rounded-full flex items-center justify-center shadow-lg mb-6 animate-pulse">
-                    <span class="material-symbols-outlined text-4xl text-white">diamond</span>
-                </div>
-                
-                <!-- VIEW 1: SELECT PLAN (NO INPUT) -->
+                <!-- VIEW 1: SELECT PLAN -->
                 <div id="premium-buy-view" class="w-full flex flex-col items-center">
-                    <h2 class="text-3xl font-bold mb-2 text-center text-gray-800 dark:text-white">Upgrade to Premium</h2>
-                    <p class="text-center text-gray-500 dark:text-gray-400 mb-8">Select a plan to start.</p>
+                    <div class="w-16 h-16 bg-gradient-to-br from-yellow-300 to-orange-500 rounded-full flex items-center justify-center shadow-lg mb-6">
+                        <span class="material-symbols-outlined text-3xl text-white">diamond</span>
+                    </div>
+                    <h2 class="text-2xl font-bold mb-2 text-gray-800 dark:text-white">Upgrade to Premium</h2>
+                    <p class="text-center text-gray-500 dark:text-gray-400 mb-8 text-sm">Remove ads, keep emails longer.</p>
 
-                    <!-- LIFETIME Plan -->
-                    <div class="w-full bg-gradient-to-br from-gray-50 to-gray-100 dark:from-slate-800 dark:to-slate-800 border-2 border-yellow-400 rounded-2xl p-6 shadow-xl relative overflow-hidden transform hover:-translate-y-1 transition-transform mb-4">
-                        <div class="absolute top-0 right-0 bg-yellow-400 text-xs font-bold px-3 py-1 rounded-bl-xl text-white">BEST VALUE</div>
+                    <div class="w-full bg-slate-50 dark:bg-slate-800 border-2 border-yellow-400 rounded-2xl p-5 shadow-lg relative mb-4">
+                        <div class="absolute -top-3 right-4 bg-yellow-400 text-xs font-bold px-3 py-1 rounded-full text-black">POPULAR</div>
                         <div class="flex justify-between items-end mb-4">
-                            <div><h3 class="text-xl font-bold text-gray-800 dark:text-gray-100">BloomMail+</h3><p class="text-sm text-gray-500">Lifetime Access</p></div>
-                            <div class="text-right"><span class="text-3xl font-bold text-purple-600 dark:text-purple-400">₹499</span></div>
+                            <div><h3 class="text-lg font-bold text-gray-800 dark:text-white">BloomMail+</h3><p class="text-xs text-gray-500">Lifetime</p></div>
+                            <div class="text-right"><span class="text-2xl font-bold text-purple-600 dark:text-purple-400">₹499</span></div>
                         </div>
-                        <button id="buy-premium-lifetime-btn" class="w-full bg-gradient-to-r from-yellow-400 to-orange-500 text-white font-bold py-3 rounded-xl shadow-lg hover:shadow-xl hover:scale-105 transition-all active:scale-95">Get Lifetime Access</button>
+                        <button id="buy-premium-lifetime-btn" class="w-full bg-gradient-to-r from-yellow-400 to-orange-500 text-white font-bold py-3 rounded-xl shadow-md active:scale-95 transition-transform">Get Lifetime Access</button>
                     </div>
 
-                    <!-- TRIAL Plan -->
-                    <div class="w-full bg-white dark:bg-slate-700 border border-purple-200 dark:border-slate-600 rounded-2xl p-4 shadow-md flex items-center justify-between">
-                        <div><h3 class="text-lg font-bold text-gray-800 dark:text-gray-100">1 Day Trial</h3><p class="text-xs text-gray-500">Test all features</p></div>
-                        <div class="flex flex-col items-end gap-2">
-                             <span class="text-xl font-bold text-purple-600 dark:text-purple-300">₹2.00</span>
-                             <button id="buy-premium-trial-btn" class="px-4 py-2 bg-purple-100 dark:bg-purple-800 text-purple-700 dark:text-purple-200 text-sm font-bold rounded-lg hover:bg-purple-200 transition-colors">Try Now</button>
-                        </div>
+                    <div class="w-full border border-gray-200 dark:border-slate-700 rounded-2xl p-4 flex items-center justify-between">
+                        <div><h3 class="text-base font-bold text-gray-800 dark:text-white">1 Day Trial</h3><p class="text-xs text-gray-500">Test features</p></div>
+                        <button id="buy-premium-trial-btn" class="px-4 py-2 bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 text-xs font-bold rounded-lg">₹2.00</button>
                     </div>
                 </div>
 
-                <!-- VIEW 2: ORDER ID VERIFICATION (SHOWN AFTER PAYMENT) -->
-                <div id="premium-verify-view" class="hidden w-full flex-col items-center animate-pulse">
-                    <h2 class="text-2xl font-bold mb-4 text-center text-gray-800 dark:text-white">Verify Payment</h2>
-                    
-                    <div class="bg-blue-50 dark:bg-slate-800 p-4 rounded-xl border border-blue-200 dark:border-blue-700 w-full mb-6 text-center shadow-sm">
-                        <p class="text-sm text-gray-500 mb-2">Payment Successful! Copy this ID:</p>
-                        <div class="flex items-center justify-center gap-2 bg-white dark:bg-slate-700 p-2 rounded-lg border border-dashed border-blue-400">
-                             <p id="generated-order-id" class="font-mono text-lg font-bold text-blue-600 dark:text-blue-300 select-all"></p>
-                             <span class="material-symbols-outlined text-sm text-gray-400">content_copy</span>
-                        </div>
-                        <p class="text-xs text-red-500 mt-2 font-semibold">Do not close this window!</p>
+                <!-- VIEW 2: VERIFY -->
+                <div id="premium-verify-view" class="hidden w-full flex-col items-center">
+                    <h2 class="text-xl font-bold mb-4 text-gray-800 dark:text-white">Verify Payment</h2>
+                    <div class="bg-blue-50 dark:bg-slate-800 p-4 rounded-xl w-full mb-4 text-center">
+                        <p class="text-xs text-gray-500 mb-2">Order ID:</p>
+                        <p id="generated-order-id" class="font-mono text-lg font-bold text-blue-600 dark:text-blue-400 select-all"></p>
                     </div>
-                    
-                    <div class="w-full mb-4">
-                        <label class="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">Paste Order ID Below to Activate:</label>
-                        <input type="text" id="input-order-id" class="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-green-500 outline-none text-center font-mono placeholder-gray-400" placeholder="Paste ID Here">
-                    </div>
-
-                    <button id="verify-order-btn" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-xl shadow-lg transition-all active:scale-95 mb-4 flex justify-center gap-2">
-                        <span class="material-symbols-outlined">verified_user</span> Verify & Activate
-                    </button>
-
-                    <div class="text-center bg-red-50 dark:bg-red-900/20 p-3 rounded-lg w-full">
-                        <p class="text-red-500 font-bold text-sm">Time remaining: <span id="verification-timer">30</span>s</p>
-                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">If timer ends, payment becomes <span class="font-bold">INVALID</span>.</p>
-                    </div>
+                    <input type="text" id="input-order-id" class="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-slate-600 bg-transparent text-center mb-4 dark:text-white" placeholder="Paste ID Here">
+                    <button id="verify-order-btn" class="w-full bg-green-500 text-white font-bold py-3 rounded-xl shadow-lg">Verify</button>
+                    <p class="text-red-500 font-bold text-sm mt-4">Time: <span id="verification-timer">30</span>s</p>
                 </div>
 
-                <!-- VIEW 3: PURCHASED / ACTIVE -->
+                <!-- VIEW 3: ACTIVE -->
                 <div id="premium-active-view" class="hidden w-full flex-col items-center text-center">
-                    <h2 class="text-4xl font-bold mb-4 text-center gold-text">BloomMail+ Active</h2>
-                    
-                    <div class="p-8 bg-yellow-50 dark:bg-slate-800 rounded-2xl border border-yellow-200 dark:border-yellow-600 w-full mb-6">
-                         <span class="material-symbols-outlined text-6xl text-yellow-500 mb-4">verified</span>
-                         <h3 class="text-xl font-bold text-gray-800 dark:text-gray-100">Premium Member</h3>
-                         <p class="text-sm text-gray-500 mt-2">All features are unlocked.</p>
-                         <p id="active-id-display" class="text-xs text-gray-400 mt-4 font-mono"></p>
-                    </div>
-
-                    <button id="restore-home-btn" class="mb-4 px-6 py-3 bg-gray-200 dark:bg-slate-700 rounded-full font-semibold hover:bg-gray-300 dark:hover:bg-slate-600 transition-colors w-full">
-                        Go to Home
-                    </button>
-                    
-                    <button id="cancel-sub-btn" class="px-6 py-3 border border-red-200 dark:border-red-900 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-xl text-sm font-semibold transition-colors w-full">
-                        Cancel Subscription
-                    </button>
+                    <span class="material-symbols-outlined text-6xl text-yellow-500 mb-4">verified</span>
+                    <h2 class="text-2xl font-bold text-gray-800 dark:text-white mb-2">Premium Active</h2>
+                    <p id="active-id-display" class="text-xs text-gray-400 mb-8 font-mono"></p>
+                    <button id="restore-home-btn" class="w-full py-3 bg-gray-100 dark:bg-slate-800 rounded-xl font-bold text-gray-700 dark:text-white mb-3">Go Home</button>
+                    <button id="cancel-sub-btn" class="text-red-500 text-sm">Cancel Subscription</button>
                 </div>
-
             </main>
         </div>
 
         <!-- EMAIL VIEW SCREEN -->
-        <div id="email-screen" class="hidden flex-col h-full">
-            <header class="flex items-center justify-between p-4 md:p-5 border-b border-gray-100 dark:border-slate-700 sticky top-0 bg-white/70 dark:bg-slate-800/70 backdrop-blur-md z-10 shadow-sm">
-                <button id="back-to-inbox-btn" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors hover:scale-105 active:scale-95 shadow-sm">
-                    <span class="material-symbols-outlined text-xl text-gray-600 dark:text-gray-300">arrow_back</span>
+        <div id="email-screen" class="hidden flex-col h-full bg-white dark:bg-slate-900 z-20 absolute inset-0">
+            <header class="flex items-center p-4 border-b border-gray-100 dark:border-slate-800">
+                <button id="back-to-inbox-btn" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors">
+                    <span class="material-symbols-outlined text-gray-800 dark:text-white">arrow_back</span>
                 </button>
-                <h2 class="text-xl md:text-2xl font-bold text-center flex-grow truncate px-2 text-gray-800 dark:text-gray-100" id="email-subject-header">Email Details</h2>
-                <div class="w-10"></div> 
+                <h2 class="text-lg font-bold ml-4 truncate text-gray-800 dark:text-white flex-1" id="email-subject-header">Subject</h2>
             </header>
-
-            <main class="p-6 md:p-8 flex-grow overflow-y-auto no-scrollbar space-y-6 flex flex-col">
-                <div class="glassmorphism-card p-4 flex items-start gap-4 shadow-md">
-                    <div id="email-avatar" class="w-12 h-12 md:w-14 md:h-14 rounded-full bg-purple-500 dark:bg-pink-500 text-white flex items-center justify-center text-xl md:text-2xl font-bold flex-shrink-0 ring-2 ring-purple-300 dark:ring-pink-400 shadow-lg"></div>
-                    <div class="flex-grow min-w-0"> 
-                        <div class="flex justify-between items-baseline mb-1">
-                           <p id="email-from" class="font-semibold text-lg md:text-xl truncate text-gray-800 dark:text-gray-100"></p>
-                           <p id="email-timestamp" class="text-xs md:text-sm text-gray-500 dark:text-gray-400 flex-shrink-0 ml-2"></p>
-                        </div>
-                        <p class="text-sm text-gray-600 dark:text-gray-400 truncate">to: <span id="email-to" class="text-gray-700 dark:text-gray-300 font-medium"></span></p>
+            <main class="p-4 flex-grow overflow-y-auto no-scrollbar flex flex-col">
+                <div class="flex items-start gap-3 mb-6">
+                    <div id="email-avatar" class="w-10 h-10 rounded-full bg-purple-500 text-white flex items-center justify-center text-lg font-bold flex-shrink-0"></div>
+                    <div>
+                        <p id="email-from" class="font-bold text-gray-800 dark:text-white text-sm"></p>
+                        <p id="email-to" class="text-xs text-gray-500"></p>
                     </div>
                 </div>
-                <div class="glassmorphism-card flex-grow overflow-hidden shadow-md">
-                     <iframe id="email-body" class="w-full h-full border-0 rounded-xl bg-transparent" sandbox="allow-same-origin"></iframe>
+                <div class="flex-grow bg-gray-50 dark:bg-slate-800 rounded-xl p-2 mb-4 overflow-hidden border border-gray-100 dark:border-slate-700">
+                    <iframe id="email-body" class="w-full h-full bg-transparent" sandbox="allow-same-origin"></iframe>
                 </div>
-                <button id="delete-message-btn" class="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-rose-500 to-red-600 hover:from-rose-600 hover:to-red-700 text-white font-semibold py-3 md:py-3.5 px-4 rounded-xl shadow-lg transition-all flex-shrink-0 transform hover:scale-105 active:scale-95">
-                    <span class="material-symbols-outlined">delete</span> Delete Message
+                <button id="delete-message-btn" class="w-full bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 font-bold py-3 rounded-xl flex items-center justify-center gap-2">
+                    <span class="material-symbols-outlined">delete</span> Delete
                 </button>
             </main>
         </div>
     </div>
 
-    <div id="toast-container" class="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 space-y-2"></div>
+    <div id="toast-container" class="fixed bottom-10 left-1/2 -translate-x-1/2 z-50 space-y-2 w-max max-w-[90%]"></div>
     
     <script type="module">
         // --- STATE ---
@@ -250,12 +245,11 @@
         let timerSeconds = 600; 
         let isPremium = localStorage.getItem('bloom_premium') === 'true'; 
 
-        // Verification State
         let pendingOrderId = null;
         let verificationTimer = null;
-        let verificationTimeLeft = 30; // 30 seconds to paste ID
+        let verificationTimeLeft = 30;
 
-        // --- DOM ---
+        // --- DOM Elements ---
         const DOMElements = {
             appContainer: document.getElementById('app-container'),
             homeScreen: document.getElementById('home-screen'),
@@ -264,28 +258,18 @@
             premiumScreen: document.getElementById('premium-screen'),
             premiumBtn: document.getElementById('premium-btn'),
             backFromPremiumBtn: document.getElementById('back-from-premium-btn'),
-            
-            // Premium Views
             premiumBuyView: document.getElementById('premium-buy-view'),
             premiumVerifyView: document.getElementById('premium-verify-view'),
             premiumActiveView: document.getElementById('premium-active-view'),
-            
-            // Premium Buttons
             buyPremiumLifetimeBtn: document.getElementById('buy-premium-lifetime-btn'),
             buyPremiumTrialBtn: document.getElementById('buy-premium-trial-btn'),
-            
-            // Verification Elements
             generatedOrderIdDisplay: document.getElementById('generated-order-id'),
             inputOrderId: document.getElementById('input-order-id'),
             verifyOrderBtn: document.getElementById('verify-order-btn'),
             verificationTimerDisplay: document.getElementById('verification-timer'),
-            
-            // Active Elements
             restoreHomeBtn: document.getElementById('restore-home-btn'),
             cancelSubBtn: document.getElementById('cancel-sub-btn'),
             activeIdDisplay: document.getElementById('active-id-display'),
-
-            // Email Logic
             emailAddress: document.getElementById('email-address'),
             copyBtn: document.getElementById('copy-btn'),
             timerDisplay: document.getElementById('timer-display'),
@@ -302,30 +286,44 @@
             emailAvatar: document.getElementById('email-avatar'),
             emailFrom: document.getElementById('email-from'),
             emailTo: document.getElementById('email-to'),
-            emailTimestamp: document.getElementById('email-timestamp'),
             emailBody: document.getElementById('email-body'),
             deleteMessageBtn: document.getElementById('delete-message-btn'),
         };
 
-        // --- PREMIUM LOGIC ---
+        // --- Copy Function for Android ---
+        const copyToClipboard = (text) => {
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            textArea.style.position = "fixed";
+            textArea.style.left = "-9999px";
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                showToast("Copied!", "success");
+            } catch (err) {
+                showToast("Copy failed", "error");
+            }
+            document.body.removeChild(textArea);
+        };
+
+        // --- PREMIUM UI UPDATE ---
         const updatePremiumUI = () => {
             if (isPremium) {
                 DOMElements.appTitle.innerHTML = 'BloomMail<span class="premium-badge">PLUS</span>';
                 DOMElements.appTitle.classList.add('gold-text');
                 DOMElements.appContainer.classList.add('premium-active-border');
-                
                 DOMElements.premiumBuyView.classList.add('hidden');
                 DOMElements.premiumVerifyView.classList.add('hidden');
                 DOMElements.premiumActiveView.classList.remove('hidden');
                 DOMElements.premiumActiveView.classList.add('flex');
-
                 const savedId = localStorage.getItem('bloom_user_id');
-                if (savedId) DOMElements.activeIdDisplay.textContent = `Order ID: ${savedId}`;
+                if (savedId) DOMElements.activeIdDisplay.textContent = `ID: ${savedId}`;
             } else {
                 DOMElements.appTitle.innerHTML = 'BloomMail';
                 DOMElements.appTitle.classList.remove('gold-text');
                 DOMElements.appContainer.classList.remove('premium-active-border');
-                
                 DOMElements.premiumBuyView.classList.remove('hidden');
                 DOMElements.premiumVerifyView.classList.add('hidden');
                 DOMElements.premiumActiveView.classList.add('hidden');
@@ -334,126 +332,84 @@
         };
 
         const handleBuyPremium = (planType) => {
-            // No input check needed here anymore. Directly open Payment.
-
             let amountPaise = planType === 'trial' ? "200" : "49900";
             let planName = planType === 'trial' ? "1 Day Trial" : "Lifetime Access";
-
             const options = {
                 "key": "rzp_live_RpoRsLIDyf6u1m",
                 "amount": amountPaise,
                 "currency": "INR",
                 "name": "BloomMail",
                 "description": planName,
-                "image": "https://cdn-icons-png.flaticon.com/512/3063/3063822.png",
-                "handler": function (response){
-                    // Payment Success -> Start Verification Flow
-                    startVerificationProcess(response.razorpay_payment_id);
-                },
+                "handler": function (response){ startVerificationProcess(response.razorpay_payment_id); },
                 "prefill": { "email": currentAccount.address || "user@example.com" },
                 "theme": { "color": "#F59E0B" }
             };
-
-            try {
-                const rzp1 = new Razorpay(options);
-                rzp1.open();
-            } catch (error) {
-                showToast("Payment Gateway Error", "error");
-            }
+            try { const rzp1 = new Razorpay(options); rzp1.open(); } catch (error) { showToast("Payment Gateway Error", "error"); }
         };
 
         const startVerificationProcess = (orderId) => {
             pendingOrderId = orderId;
-            
-            // Show Verify Screen
             DOMElements.premiumBuyView.classList.add('hidden');
             DOMElements.premiumVerifyView.classList.remove('hidden');
             DOMElements.premiumVerifyView.classList.add('flex');
-            
             DOMElements.generatedOrderIdDisplay.textContent = orderId;
             DOMElements.inputOrderId.value = "";
-            DOMElements.inputOrderId.focus();
-            
-            // Start Countdown
             verificationTimeLeft = 30; 
             DOMElements.verificationTimerDisplay.textContent = verificationTimeLeft;
-            
             if (verificationTimer) clearInterval(verificationTimer);
             verificationTimer = setInterval(() => {
                 verificationTimeLeft--;
                 DOMElements.verificationTimerDisplay.textContent = verificationTimeLeft;
-                
-                if (verificationTimeLeft <= 0) {
-                    cancelOrder("Time Expired");
-                }
+                if (verificationTimeLeft <= 0) { cancelOrder("Time Expired"); }
             }, 1000);
         };
 
         const verifyOrder = () => {
-            const pastedId = DOMElements.inputOrderId.value.trim();
-            
-            if (pastedId === pendingOrderId) {
-                // SUCCESS
+            if (DOMElements.inputOrderId.value.trim() === pendingOrderId) {
                 clearInterval(verificationTimer);
                 isPremium = true;
-                
                 localStorage.setItem('bloom_premium', 'true');
-                localStorage.setItem('bloom_user_id', pendingOrderId); // Save Order ID as Proof
-                
-                showToast("Verification Successful! Upgrade Complete.", "success");
+                localStorage.setItem('bloom_user_id', pendingOrderId);
+                showToast("Premium Activated!", "success");
                 updatePremiumUI();
-            } else {
-                showToast("Invalid Order ID! Check & Retry.", "error");
-                DOMElements.inputOrderId.classList.add('ring-2', 'ring-red-500');
-                setTimeout(() => DOMElements.inputOrderId.classList.remove('ring-2', 'ring-red-500'), 1000);
-            }
+            } else { showToast("Invalid Order ID!", "error"); }
         };
 
         const cancelOrder = (reason) => {
             clearInterval(verificationTimer);
             pendingOrderId = null;
-            showToast(`Payment Invalid: ${reason}.`, "error");
-            
-            // Revert screen
+            showToast(`Failed: ${reason}`, "error");
             DOMElements.premiumVerifyView.classList.add('hidden');
             DOMElements.premiumVerifyView.classList.remove('flex');
             DOMElements.premiumBuyView.classList.remove('hidden');
         };
 
         const cancelSubscription = () => {
-            if(confirm("Are you sure you want to cancel your subscription?")) {
+            if(confirm("Cancel Subscription?")) {
                 isPremium = false;
                 localStorage.removeItem('bloom_premium');
                 localStorage.removeItem('bloom_user_id');
                 updatePremiumUI();
-                showToast("Subscription Cancelled", "info");
+                showToast("Cancelled", "info");
             }
         };
 
-        // --- BASIC FUNCTIONS (Unchanged) ---
-        const fetchWithTimeout = async (url, options = {}, timeout = 8000) => {
-            const controller = new AbortController();
-            const id = setTimeout(() => controller.abort(), timeout);
-            try { const r = await fetch(url, { ...options, signal: controller.signal }); clearTimeout(id); return r; } 
-            catch (e) { clearTimeout(id); throw e; }
-        };
-
+        // --- MAIL LOGIC ---
         const getNewEmail = async (isDelete = false) => {
             if (isDelete && currentAccount.id) await fetch(`${API_BASE}/accounts/${currentAccount.id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${currentAccount.token}` } }).catch(()=>{});
             clearInterval(inboxInterval); clearInterval(timerInterval);
+            DOMElements.emailAddress.textContent = "generating...";
             try {
                 const d = await (await fetch(`${API_BASE}/domains`)).json();
                 const address = `${Math.random().toString(36).substring(7)}@${d['hydra:member'][0].domain}`;
                 const password = Math.random().toString(36).substring(2);
                 await fetch(`${API_BASE}/accounts`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ address, password }) });
                 const tokenData = await (await fetch(`${API_BASE}/token`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ address, password }) })).json();
-                
                 const accDetails = await (await fetch(`${API_BASE}/me`, { headers: { 'Authorization': `Bearer ${tokenData.token}` } })).json();
                 currentAccount = { id: accDetails.id, address, token: tokenData.token };
-
                 DOMElements.emailAddress.textContent = address;
                 extendTimer(); checkInbox(); inboxInterval = setInterval(checkInbox, 10000);
-            } catch (e) { console.error(e); }
+            } catch (e) { DOMElements.emailAddress.textContent = "Error! Retry."; }
         };
 
         const checkInbox = async () => {
@@ -466,11 +422,17 @@
 
         const renderInbox = (msgs) => {
             DOMElements.inboxList.innerHTML = '';
-            DOMElements.emptyInbox.style.display = msgs.length ? 'none' : 'block';
+            DOMElements.emptyInbox.style.display = msgs.length ? 'none' : 'flex';
             msgs.sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt)).forEach(m => {
                 const d = document.createElement('div');
-                d.className = 'bg-white dark:bg-slate-600 p-4 rounded-xl shadow-sm cursor-pointer hover:bg-pink-50 dark:hover:bg-slate-500 mb-2';
-                d.innerHTML = `<div class="flex justify-between"><p class="font-bold text-gray-800 dark:text-gray-100">${m.from.name||m.from.address}</p><p class="text-xs text-gray-500">Just now</p></div><p class="truncate text-gray-600 dark:text-gray-300">${m.subject}</p>`;
+                d.className = 'bg-white dark:bg-slate-700 p-3 rounded-xl shadow-sm cursor-pointer border-l-4 border-purple-500 hover:bg-gray-50 dark:hover:bg-slate-600 transition-colors';
+                d.innerHTML = `
+                    <div class="flex justify-between items-center mb-1">
+                        <p class="font-bold text-gray-800 dark:text-white text-sm truncate w-2/3">${m.from.name||m.from.address}</p>
+                        <p class="text-[10px] text-gray-400">Just now</p>
+                    </div>
+                    <p class="truncate text-xs text-gray-500 dark:text-gray-300 font-medium">${m.subject}</p>
+                `;
                 d.onclick = () => openEmail(m.id);
                 DOMElements.inboxList.appendChild(d);
             });
@@ -491,25 +453,40 @@
         
         const showToast = (msg, type) => {
             const t = document.createElement('div');
-            t.className = `px-4 py-2 rounded-full shadow-lg text-sm font-semibold toast-in ${type==='error'?'bg-red-500 text-white':type==='success'?'bg-green-500 text-white':'bg-gray-800 text-white'}`;
+            t.className = `px-4 py-2 rounded-full shadow-xl text-xs font-bold toast-in ${type==='error'?'bg-red-500 text-white':type==='success'?'bg-green-500 text-white':'bg-gray-800 text-white'}`;
             t.textContent = msg;
             document.getElementById('toast-container').appendChild(t);
             setTimeout(()=>t.remove(), 3000);
         };
 
+        const toggleTheme = () => {
+            const isDark = document.documentElement.classList.toggle('dark');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            DOMElements.themeIcon.textContent = isDark ? 'dark_mode' : 'light_mode';
+        };
+
         // --- INIT ---
         const init = () => {
-            const theme = localStorage.getItem('theme') || 'light';
-            if(theme==='dark') document.documentElement.classList.add('dark');
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                document.documentElement.classList.add('dark');
+                DOMElements.themeIcon.textContent = 'dark_mode';
+            } else {
+                document.documentElement.classList.remove('dark');
+                DOMElements.themeIcon.textContent = 'light_mode';
+            }
+            
             updatePremiumUI();
             getNewEmail();
 
-            DOMElements.copyBtn.onclick = () => navigator.clipboard.writeText(currentAccount.address).then(()=>showToast("Copied!", "success"));
+            DOMElements.copyBtn.onclick = () => copyToClipboard(currentAccount.address);
+            DOMElements.generatedOrderIdDisplay.onclick = function() { copyToClipboard(this.textContent); };
+            
             DOMElements.changeMailBtn.onclick = () => getNewEmail(false);
             DOMElements.deleteMailBtn.onclick = () => getNewEmail(true);
             DOMElements.refreshBtn.onclick = checkInbox;
             DOMElements.extendTimerBtn.onclick = extendTimer;
-            DOMElements.themeToggleBtn.onclick = () => { document.documentElement.classList.toggle('dark'); localStorage.setItem('theme', document.documentElement.classList.contains('dark')?'dark':'light'); };
+            DOMElements.themeToggleBtn.onclick = toggleTheme;
             
             DOMElements.premiumBtn.onclick = () => { DOMElements.homeScreen.classList.add('hidden'); DOMElements.premiumScreen.classList.remove('hidden'); DOMElements.premiumScreen.classList.add('flex'); };
             DOMElements.backFromPremiumBtn.onclick = DOMElements.restoreHomeBtn.onclick = () => { DOMElements.premiumScreen.classList.add('hidden'); DOMElements.premiumScreen.classList.remove('flex'); DOMElements.homeScreen.classList.remove('hidden'); };
@@ -517,14 +494,8 @@
 
             DOMElements.buyPremiumLifetimeBtn.onclick = () => handleBuyPremium('lifetime');
             DOMElements.buyPremiumTrialBtn.onclick = () => handleBuyPremium('trial');
-            
             DOMElements.verifyOrderBtn.onclick = verifyOrder;
             DOMElements.cancelSubBtn.onclick = cancelSubscription;
-            
-            DOMElements.generatedOrderIdDisplay.onclick = function() {
-                navigator.clipboard.writeText(this.textContent);
-                showToast("ID Copied!", "info");
-            };
         };
         
         document.addEventListener('DOMContentLoaded', init);
