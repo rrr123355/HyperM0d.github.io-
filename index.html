@@ -2,17 +2,16 @@
 <html lang="en" class="light">
 <head>
     <meta charset="UTF-8">
-    <!-- হাইট এবং জুম ফিক্স করা হয়েছে -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>BloomMail - Temporary Email</title>
     
-    <!-- Tailwind CSS Script -->
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- IMPORTANT: Tailwind Config to fix Dark/Light Mode Glitch -->
+    <!-- Tailwind Config -->
     <script>
         tailwind.config = {
-            darkMode: 'class', // এই লাইনটি আপনার সমস্যার সমাধান করবে
+            darkMode: 'class',
             theme: {
                 extend: {
                     colors: {
@@ -26,6 +25,7 @@
     <!-- Razorpay SDK -->
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
+    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
@@ -36,22 +36,17 @@
             font-family: 'Space Grotesk', sans-serif;
             background-size: 200% 200%;
             animation: background-pan 30s linear infinite alternate;
-            -webkit-user-select: none; /* মোবাইলে টেক্সট সিলেকশন বন্ধ করার জন্য */
+            -webkit-user-select: none;
             user-select: none;
         }
 
-        /* Scrollbar hide */
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         
         .material-symbols-outlined { font-size: inherit; vertical-align: middle; }
         
-        /* Toast Animations */
         @keyframes toastIn { from { transform: translateY(100%) scale(0.9); opacity: 0; } to { transform: translateY(0) scale(1); opacity: 1; } }
         .toast-in { animation: toastIn 0.3s ease-out forwards; }
-
-        @keyframes spin { to { transform: rotate(360deg); } }
-        .spinner { display: inline-block; width: 1.25rem; height: 1.25rem; border: 2px solid rgba(255, 255, 255, 0.3); border-radius: 50%; border-top-color: white; animation: spin 1s ease-in-out infinite; }
 
         @keyframes background-pan { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
 
@@ -60,9 +55,8 @@
         .dark .glam-border-glow { border-color: theme('colors.purple.600'); animation: glam-glow-dark 5s ease-in-out infinite alternate; }
         @keyframes glam-glow-dark { 0%, 100% { box-shadow: 0 0 12px rgba(218, 112, 214, 0.7); } 50% { box-shadow: 0 0 18px rgba(255, 0, 255, 0.9); } }
 
-        /* Glassmorphism Fixes */
         .glassmorphism-card {
-            background-color: rgba(255, 255, 255, 0.85); /* Light mode opacity increased for better visibility */
+            background-color: rgba(255, 255, 255, 0.85);
             backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); 
             border: 1px solid rgba(255, 255, 255, 0.5); 
             border-radius: 1.5rem; 
@@ -70,7 +64,7 @@
             transition: all 0.5s ease;
         }
         .dark .glassmorphism-card { 
-            background-color: rgba(15, 23, 42, 0.85); /* Darker background for dark mode */
+            background-color: rgba(15, 23, 42, 0.85);
             border: 1px solid rgba(71, 85, 105, 0.4); 
             box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4); 
         }
@@ -84,13 +78,10 @@
 </head>
 <body class="bg-gradient-to-br from-rose-50 via-purple-50 to-indigo-50 dark:from-slate-900 dark:via-indigo-950 dark:to-purple-950 text-gray-900 dark:text-gray-100 antialiased transition-colors duration-300 h-[100dvh] overflow-hidden">
 
-    <!-- Container Height fixed to 100dvh for mobile -->
     <div id="app-container" class="max-w-md mx-auto h-full flex flex-col md:rounded-3xl md:my-6 md:h-[95vh] shadow-2xl glassmorphism-card overflow-hidden">
         
         <!-- HOME SCREEN -->
         <div id="home-screen" class="flex flex-col h-full relative">
-            
-            <!-- HEADER -->
             <header class="flex items-center justify-between p-4 pt-8 md:pt-4 border-b border-gray-200 dark:border-slate-700 bg-white/60 dark:bg-slate-900/60 backdrop-blur-md z-10 sticky top-0 transition-colors duration-300">
                 <button id="premium-btn" class="p-2 rounded-full bg-gradient-to-tr from-yellow-400 to-orange-500 text-white shadow-lg hover:scale-110 active:scale-95 transition-all duration-300">
                     <span class="material-symbols-outlined text-xl">diamond</span>
@@ -102,7 +93,6 @@
             </header>
 
             <main class="p-5 space-y-6 flex-grow overflow-y-auto no-scrollbar pb-20">
-                <!-- Email Display Card -->
                 <div class="bg-white/80 dark:bg-slate-800/80 p-6 rounded-2xl shadow-lg glam-border-glow backdrop-blur-sm">
                     <p class="text-sm text-gray-500 dark:text-gray-400 mb-2 font-medium tracking-wide text-center">Your temporary email</p>
                     <div class="flex items-center justify-between gap-2 bg-gray-50 dark:bg-slate-900/50 p-3 rounded-xl border border-gray-100 dark:border-slate-700">
@@ -113,7 +103,6 @@
                     </div>
                 </div>
                 
-                <!-- Action Buttons -->
                 <div class="grid grid-cols-2 gap-4">
                     <button id="change-mail-btn" class="flex flex-col items-center justify-center gap-1 bg-gradient-to-br from-indigo-500 to-purple-600 text-white py-4 rounded-2xl shadow-lg active:scale-95 transition-transform">
                         <span class="material-symbols-outlined text-2xl">change_circle</span> 
@@ -125,7 +114,6 @@
                     </button>
                 </div>
 
-                <!-- Inbox Area -->
                 <div class="bg-white/60 dark:bg-slate-800/40 rounded-2xl p-5 shadow-sm border border-white/50 dark:border-slate-700/50 min-h-[300px]">
                     <div class="flex items-center justify-between mb-4">
                         <h2 class="text-lg font-bold text-gray-800 dark:text-white">Inbox</h2>
@@ -161,49 +149,44 @@
                 <h2 class="text-xl font-bold ml-4 text-gray-800 dark:text-white">Premium</h2>
             </header>
 
-            <main class="p-6 flex-grow overflow-y-auto no-scrollbar flex flex-col items-center">
+            <main class="p-6 flex-grow overflow-y-auto no-scrollbar flex flex-col items-center justify-center">
                 <!-- VIEW 1: SELECT PLAN -->
                 <div id="premium-buy-view" class="w-full flex flex-col items-center">
                     <div class="w-16 h-16 bg-gradient-to-br from-yellow-300 to-orange-500 rounded-full flex items-center justify-center shadow-lg mb-6">
                         <span class="material-symbols-outlined text-3xl text-white">diamond</span>
                     </div>
                     <h2 class="text-2xl font-bold mb-2 text-gray-800 dark:text-white">Upgrade to Premium</h2>
-                    <p class="text-center text-gray-500 dark:text-gray-400 mb-8 text-sm">Remove ads, keep emails longer.</p>
+                    <p class="text-center text-gray-500 dark:text-gray-400 mb-8 text-sm">Instant activation. No ads.</p>
 
                     <div class="w-full bg-slate-50 dark:bg-slate-800 border-2 border-yellow-400 rounded-2xl p-5 shadow-lg relative mb-4">
                         <div class="absolute -top-3 right-4 bg-yellow-400 text-xs font-bold px-3 py-1 rounded-full text-black">POPULAR</div>
                         <div class="flex justify-between items-end mb-4">
-                            <div><h3 class="text-lg font-bold text-gray-800 dark:text-white">BloomMail+</h3><p class="text-xs text-gray-500">Lifetime</p></div>
+                            <div><h3 class="text-lg font-bold text-gray-800 dark:text-white">Lifetime Access</h3><p class="text-xs text-gray-500">Never expires</p></div>
                             <div class="text-right"><span class="text-2xl font-bold text-purple-600 dark:text-purple-400">₹499</span></div>
                         </div>
-                        <button id="buy-premium-lifetime-btn" class="w-full bg-gradient-to-r from-yellow-400 to-orange-500 text-white font-bold py-3 rounded-xl shadow-md active:scale-95 transition-transform">Get Lifetime Access</button>
+                        <button id="buy-premium-lifetime-btn" class="w-full bg-gradient-to-r from-yellow-400 to-orange-500 text-white font-bold py-3 rounded-xl shadow-md active:scale-95 transition-transform">Get Lifetime</button>
                     </div>
 
                     <div class="w-full border border-gray-200 dark:border-slate-700 rounded-2xl p-4 flex items-center justify-between">
-                        <div><h3 class="text-base font-bold text-gray-800 dark:text-white">1 Day Trial</h3><p class="text-xs text-gray-500">Test features</p></div>
+                        <div><h3 class="text-base font-bold text-gray-800 dark:text-white">1 Day Pass</h3><p class="text-xs text-gray-500">Expires in 24 hours</p></div>
                         <button id="buy-premium-trial-btn" class="px-4 py-2 bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 text-xs font-bold rounded-lg">₹2.00</button>
                     </div>
                 </div>
 
-                <!-- VIEW 2: VERIFY -->
-                <div id="premium-verify-view" class="hidden w-full flex-col items-center">
-                    <h2 class="text-xl font-bold mb-4 text-gray-800 dark:text-white">Verify Payment</h2>
-                    <div class="bg-blue-50 dark:bg-slate-800 p-4 rounded-xl w-full mb-4 text-center">
-                        <p class="text-xs text-gray-500 mb-2">Order ID:</p>
-                        <p id="generated-order-id" class="font-mono text-lg font-bold text-blue-600 dark:text-blue-400 select-all"></p>
-                    </div>
-                    <input type="text" id="input-order-id" class="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-slate-600 bg-transparent text-center mb-4 dark:text-white" placeholder="Paste ID Here">
-                    <button id="verify-order-btn" class="w-full bg-green-500 text-white font-bold py-3 rounded-xl shadow-lg">Verify</button>
-                    <p class="text-red-500 font-bold text-sm mt-4">Time: <span id="verification-timer">30</span>s</p>
-                </div>
-
-                <!-- VIEW 3: ACTIVE -->
+                <!-- VIEW 2: ACTIVE (Auto Switched) -->
                 <div id="premium-active-view" class="hidden w-full flex-col items-center text-center">
                     <span class="material-symbols-outlined text-6xl text-yellow-500 mb-4">verified</span>
                     <h2 class="text-2xl font-bold text-gray-800 dark:text-white mb-2">Premium Active</h2>
-                    <p id="active-id-display" class="text-xs text-gray-400 mb-8 font-mono"></p>
+                    
+                    <div class="bg-yellow-50 dark:bg-slate-800/50 p-4 rounded-xl border border-yellow-200 dark:border-yellow-900/30 mb-6 w-full">
+                        <p class="text-xs text-gray-500 uppercase font-bold tracking-wider">Current Plan</p>
+                        <p id="active-plan-name" class="text-lg font-bold text-gray-800 dark:text-white mt-1">Lifetime Access</p>
+                        <p id="active-plan-expiry" class="text-xs text-gray-400 mt-2">No expiration date</p>
+                        <p id="active-id-display" class="text-[10px] text-gray-300 font-mono mt-4 select-all"></p>
+                    </div>
+
                     <button id="restore-home-btn" class="w-full py-3 bg-gray-100 dark:bg-slate-800 rounded-xl font-bold text-gray-700 dark:text-white mb-3">Go Home</button>
-                    <button id="cancel-sub-btn" class="text-red-500 text-sm">Cancel Subscription</button>
+                    <button id="cancel-sub-btn" class="text-red-500 font-medium text-sm py-2 px-4 hover:bg-red-50 dark:hover:bg-red-900/10 rounded-lg transition-colors">Cancel Subscription</button>
                 </div>
             </main>
         </div>
@@ -237,17 +220,17 @@
     <div id="toast-container" class="fixed bottom-10 left-1/2 -translate-x-1/2 z-50 space-y-2 w-max max-w-[90%]"></div>
     
     <script type="module">
-        // --- STATE ---
+        // --- STATE & CONFIG ---
         const API_BASE = 'https://api.mail.tm';
         let currentAccount = { id: null, address: null, token: null };
         let inboxInterval = null;
         let timerInterval = null;
         let timerSeconds = 600; 
-        let isPremium = localStorage.getItem('bloom_premium') === 'true'; 
 
-        let pendingOrderId = null;
-        let verificationTimer = null;
-        let verificationTimeLeft = 30;
+        // Premium State
+        let isPremium = localStorage.getItem('bloom_premium') === 'true'; 
+        let premiumPlanType = localStorage.getItem('bloom_plan_type') || 'none'; // 'trial' or 'lifetime'
+        let premiumBuyDate = localStorage.getItem('bloom_buy_date');
 
         // --- DOM Elements ---
         const DOMElements = {
@@ -259,17 +242,14 @@
             premiumBtn: document.getElementById('premium-btn'),
             backFromPremiumBtn: document.getElementById('back-from-premium-btn'),
             premiumBuyView: document.getElementById('premium-buy-view'),
-            premiumVerifyView: document.getElementById('premium-verify-view'),
             premiumActiveView: document.getElementById('premium-active-view'),
             buyPremiumLifetimeBtn: document.getElementById('buy-premium-lifetime-btn'),
             buyPremiumTrialBtn: document.getElementById('buy-premium-trial-btn'),
-            generatedOrderIdDisplay: document.getElementById('generated-order-id'),
-            inputOrderId: document.getElementById('input-order-id'),
-            verifyOrderBtn: document.getElementById('verify-order-btn'),
-            verificationTimerDisplay: document.getElementById('verification-timer'),
             restoreHomeBtn: document.getElementById('restore-home-btn'),
             cancelSubBtn: document.getElementById('cancel-sub-btn'),
             activeIdDisplay: document.getElementById('active-id-display'),
+            activePlanName: document.getElementById('active-plan-name'),
+            activePlanExpiry: document.getElementById('active-plan-expiry'),
             emailAddress: document.getElementById('email-address'),
             copyBtn: document.getElementById('copy-btn'),
             timerDisplay: document.getElementById('timer-display'),
@@ -290,7 +270,6 @@
             deleteMessageBtn: document.getElementById('delete-message-btn'),
         };
 
-        // --- Copy Function for Android ---
         const copyToClipboard = (text) => {
             const textArea = document.createElement("textarea");
             textArea.value = text;
@@ -308,89 +287,144 @@
             document.body.removeChild(textArea);
         };
 
-        // --- PREMIUM UI UPDATE ---
+        // --- PREMIUM CHECKER & UI ---
+        const checkPremiumExpiry = () => {
+            if (!isPremium) return;
+
+            // If it's a Trial plan, check if 24 hours passed
+            if (premiumPlanType === 'trial' && premiumBuyDate) {
+                const buyTime = new Date(premiumBuyDate).getTime();
+                const now = new Date().getTime();
+                const oneDayMs = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+
+                if (now - buyTime > oneDayMs) {
+                    // Expired
+                    deactivatePremium("Trial Expired");
+                }
+            }
+        };
+
+        const deactivatePremium = (reason) => {
+            isPremium = false;
+            premiumPlanType = 'none';
+            localStorage.removeItem('bloom_premium');
+            localStorage.removeItem('bloom_plan_type');
+            localStorage.removeItem('bloom_buy_date');
+            localStorage.removeItem('bloom_order_id');
+            updatePremiumUI();
+            if (reason) showToast(reason, "info");
+        };
+
         const updatePremiumUI = () => {
             if (isPremium) {
+                // UI Changes for Active Premium
                 DOMElements.appTitle.innerHTML = 'BloomMail<span class="premium-badge">PLUS</span>';
                 DOMElements.appTitle.classList.add('gold-text');
                 DOMElements.appContainer.classList.add('premium-active-border');
+                
                 DOMElements.premiumBuyView.classList.add('hidden');
-                DOMElements.premiumVerifyView.classList.add('hidden');
                 DOMElements.premiumActiveView.classList.remove('hidden');
                 DOMElements.premiumActiveView.classList.add('flex');
-                const savedId = localStorage.getItem('bloom_user_id');
-                if (savedId) DOMElements.activeIdDisplay.textContent = `ID: ${savedId}`;
+                
+                // Set Active Screen Details
+                const savedId = localStorage.getItem('bloom_order_id') || 'Unknown';
+                DOMElements.activeIdDisplay.textContent = `Order ID: ${savedId}`;
+                
+                if (premiumPlanType === 'trial') {
+                    DOMElements.activePlanName.textContent = "1 Day Pass";
+                    DOMElements.activePlanName.className = "text-lg font-bold text-purple-600 dark:text-purple-400 mt-1";
+                    
+                    // Show time remaining
+                    const buyTime = new Date(premiumBuyDate).getTime();
+                    const expireTime = buyTime + (24 * 60 * 60 * 1000);
+                    const now = new Date().getTime();
+                    const hoursLeft = Math.max(0, Math.floor((expireTime - now) / (1000 * 60 * 60)));
+                    DOMElements.activePlanExpiry.textContent = `Expires in approx ${hoursLeft} hours`;
+                } else {
+                    DOMElements.activePlanName.textContent = "Lifetime Access";
+                    DOMElements.activePlanName.className = "text-lg font-bold text-yellow-600 dark:text-yellow-400 mt-1";
+                    DOMElements.activePlanExpiry.textContent = "Never expires";
+                }
+
             } else {
+                // Revert to Free UI
                 DOMElements.appTitle.innerHTML = 'BloomMail';
                 DOMElements.appTitle.classList.remove('gold-text');
                 DOMElements.appContainer.classList.remove('premium-active-border');
+                
                 DOMElements.premiumBuyView.classList.remove('hidden');
-                DOMElements.premiumVerifyView.classList.add('hidden');
                 DOMElements.premiumActiveView.classList.add('hidden');
                 DOMElements.premiumActiveView.classList.remove('flex');
             }
         };
 
+        // --- PAYMENT LOGIC (AUTOMATIC) ---
+        const generateOrderId = () => {
+            const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+            let result = "";
+            for (let i = 0; i < 14; i++) {
+                result += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return "order_" + result;
+        };
+
+        const activatePremium = (planType, orderId) => {
+            isPremium = true;
+            premiumPlanType = planType;
+            premiumBuyDate = new Date().toISOString();
+
+            localStorage.setItem('bloom_premium', 'true');
+            localStorage.setItem('bloom_plan_type', planType);
+            localStorage.setItem('bloom_buy_date', premiumBuyDate);
+            localStorage.setItem('bloom_order_id', orderId);
+
+            showToast("Premium Activated Successfully!", "success");
+            updatePremiumUI();
+        };
+
         const handleBuyPremium = (planType) => {
-            let amountPaise = planType === 'trial' ? "200" : "49900";
+            let amountPaise = planType === 'trial' ? "200" : "49900"; 
             let planName = planType === 'trial' ? "1 Day Trial" : "Lifetime Access";
+            
+            const localOrderId = generateOrderId();
+
             const options = {
-                "key": "rzp_live_RpoRsLIDyf6u1m",
+                "key": "rzp_live_RpoRsLIDyf6u1m", 
                 "amount": amountPaise,
                 "currency": "INR",
                 "name": "BloomMail",
                 "description": planName,
-                "handler": function (response){ startVerificationProcess(response.razorpay_payment_id); },
-                "prefill": { "email": currentAccount.address || "user@example.com" },
-                "theme": { "color": "#F59E0B" }
+                "image": "https://cdn-icons-png.flaticon.com/512/732/732200.png",
+                "prefill": { 
+                    "email": currentAccount.address || "user@example.com" 
+                },
+                "theme": { "color": "#F59E0B" },
+                "handler": function (response){
+                    // DIRECT AUTO ACTIVATION - No Manual Entry
+                    console.log("Payment Success. Activating...");
+                    activatePremium(planType, localOrderId);
+                },
+                "modal": {
+                    "ondismiss": function(){
+                        showToast("Payment Cancelled", "info");
+                    }
+                }
             };
-            try { const rzp1 = new Razorpay(options); rzp1.open(); } catch (error) { showToast("Payment Gateway Error", "error"); }
-        };
 
-        const startVerificationProcess = (orderId) => {
-            pendingOrderId = orderId;
-            DOMElements.premiumBuyView.classList.add('hidden');
-            DOMElements.premiumVerifyView.classList.remove('hidden');
-            DOMElements.premiumVerifyView.classList.add('flex');
-            DOMElements.generatedOrderIdDisplay.textContent = orderId;
-            DOMElements.inputOrderId.value = "";
-            verificationTimeLeft = 30; 
-            DOMElements.verificationTimerDisplay.textContent = verificationTimeLeft;
-            if (verificationTimer) clearInterval(verificationTimer);
-            verificationTimer = setInterval(() => {
-                verificationTimeLeft--;
-                DOMElements.verificationTimerDisplay.textContent = verificationTimeLeft;
-                if (verificationTimeLeft <= 0) { cancelOrder("Time Expired"); }
-            }, 1000);
-        };
-
-        const verifyOrder = () => {
-            if (DOMElements.inputOrderId.value.trim() === pendingOrderId) {
-                clearInterval(verificationTimer);
-                isPremium = true;
-                localStorage.setItem('bloom_premium', 'true');
-                localStorage.setItem('bloom_user_id', pendingOrderId);
-                showToast("Premium Activated!", "success");
-                updatePremiumUI();
-            } else { showToast("Invalid Order ID!", "error"); }
-        };
-
-        const cancelOrder = (reason) => {
-            clearInterval(verificationTimer);
-            pendingOrderId = null;
-            showToast(`Failed: ${reason}`, "error");
-            DOMElements.premiumVerifyView.classList.add('hidden');
-            DOMElements.premiumVerifyView.classList.remove('flex');
-            DOMElements.premiumBuyView.classList.remove('hidden');
+            try { 
+                const rzp1 = new Razorpay(options); 
+                rzp1.on('payment.failed', function (response){
+                    showToast("Payment Failed.", "error");
+                });
+                rzp1.open(); 
+            } catch (error) { 
+                showToast("Gateway Error", "error"); 
+            }
         };
 
         const cancelSubscription = () => {
-            if(confirm("Cancel Subscription?")) {
-                isPremium = false;
-                localStorage.removeItem('bloom_premium');
-                localStorage.removeItem('bloom_user_id');
-                updatePremiumUI();
-                showToast("Cancelled", "info");
+            if(confirm("Are you sure you want to cancel your Premium benefits?")) {
+                deactivatePremium("Subscription Cancelled");
             }
         };
 
@@ -465,7 +499,6 @@
             DOMElements.themeIcon.textContent = isDark ? 'dark_mode' : 'light_mode';
         };
 
-        // --- INIT ---
         const init = () => {
             const savedTheme = localStorage.getItem('theme');
             if (savedTheme === 'dark') {
@@ -476,11 +509,13 @@
                 DOMElements.themeIcon.textContent = 'light_mode';
             }
             
+            // Check expiry before updating UI
+            checkPremiumExpiry();
             updatePremiumUI();
+            
             getNewEmail();
 
             DOMElements.copyBtn.onclick = () => copyToClipboard(currentAccount.address);
-            DOMElements.generatedOrderIdDisplay.onclick = function() { copyToClipboard(this.textContent); };
             
             DOMElements.changeMailBtn.onclick = () => getNewEmail(false);
             DOMElements.deleteMailBtn.onclick = () => getNewEmail(true);
@@ -494,7 +529,6 @@
 
             DOMElements.buyPremiumLifetimeBtn.onclick = () => handleBuyPremium('lifetime');
             DOMElements.buyPremiumTrialBtn.onclick = () => handleBuyPremium('trial');
-            DOMElements.verifyOrderBtn.onclick = verifyOrder;
             DOMElements.cancelSubBtn.onclick = cancelSubscription;
         };
         
